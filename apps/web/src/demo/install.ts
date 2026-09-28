@@ -1,7 +1,7 @@
 import type { WsServerMessage } from '@q4413/shared';
 
 import { GEO_PROFILES } from './profiles.ts';
-import { DemoServer } from './server.ts';
+import { DemoServer, INVITE_PATH } from './server.ts';
 
 /**
  * The whole of the demo's contact with the app: `fetch` and `WebSocket`.
@@ -102,3 +102,22 @@ function installSocket(): void {
 }
 
 installDemoServer();
+
+/**
+ * The invite link, on a host that has no server to redirect.
+ *
+ * `/j/<token>` is a **navigation**, not a `fetch`: GitHub Pages answers it with
+ * `404.html`, the shell boots, and the patch above never sees the path that
+ * brought it here. So the shim makes the one request nothing else is left to
+ * make. It runs **before the mount** — `main.ts` awaits this module — so the app
+ * comes up as that player rather than flashing the master panel and then
+ * replacing it.
+ *
+ * `history.replaceState` stands in for the Worker's 303, for the reason the 303
+ * has: the token is a credential and must not stay in the address bar of a page
+ * that gets installed to a home screen.
+ */
+if (INVITE_PATH.test(location.pathname)) {
+  await server.handle(new Request(location.href));
+  history.replaceState(null, '', '/');
+}

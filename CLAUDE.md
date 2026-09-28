@@ -236,6 +236,16 @@ Three things about its shape that are not obvious:
 - **It walks the players with `tools/walk.mjs`**, which is `fake-phones.mjs`'s pure half,
   split out for exactly this. Two walk implementations would be two answers to "where is
   everybody", one of them tested.
+- **A navigation is not a `fetch`, and the invite link is the one that is.**
+  Patching the two globals covers everything the app *requests* and nothing it
+  is *loaded at*: `/j/<token>` pasted into an address bar reaches a static host,
+  which has no redirect to give and answers `404.html`, so the shell boots with
+  the token still in `location` and nobody to redeem it. The link then silently
+  opens the master's own view. `install.ts` matches `INVITE_PATH` on boot and
+  makes that request itself, before the mount. `tests/demo.test.ts` cannot see
+  any of this — it calls `handle()` directly, which is why the gap survived 25
+  green tests — so the pattern is what the suite pins, and the boot is checked
+  through `pnpm build` and a static server.
 - **What it cannot do answers `501` and says why.** Ingest, the basemap override and device
   pairing. The controls for those are absent because the payload makes them absent, never
   because the view knows about the demo — `replayAvailable`, an empty tray. A demo that

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { Payload } from '@q4413/shared';
 
-import { DemoServer } from '../apps/web/src/demo/server.ts';
+import { DemoServer, INVITE_PATH } from '../apps/web/src/demo/server.ts';
 
 /**
  * The static demo's fake server (`apps/web/src/demo/`).
@@ -391,6 +391,38 @@ describe('the demo server', () => {
     expect(payload.hiddenPois).toBeUndefined();
     expect(payload.disabledZones).toBeUndefined();
     expect(payload.events).toBeUndefined();
+  });
+
+  /**
+   * **`INVITE_PATH` is the contract between the panel and `install.ts`,** and it
+   * is checked against the paths the panel actually prints rather than against a
+   * string written here — a pattern tested on its own examples agrees with
+   * itself and with nothing else.
+   *
+   * It matters because on a static host the link arrives as a *navigation*: the
+   * shell comes back as `404.html` and the patched `fetch` never sees it, so the
+   * shim matches on this to know it has an invite in the address bar at all. A
+   * pattern that stopped covering what the panel hands out would leave the link
+   * loading the master's own view, which is the one outcome §4 cannot have.
+   *
+   * What this cannot reach is the boot itself: `install.ts` patches browser
+   * globals, and the suite has no browser. That half is looked at through
+   * `pnpm build` and a static server, per CLAUDE.md.
+   */
+  it('matches every invite path the panel prints, and nothing adjacent', async () => {
+    await login();
+    const body = (await (await server.handle(get('/api/master/invites'))).json()) as {
+      invites: Array<{ path: string }>;
+    };
+
+    expect(body.invites.length).toBeGreaterThan(0);
+    for (const invite of body.invites) expect(INVITE_PATH.test(invite.path)).toBe(true);
+
+    // The shell is served under every unknown path, so the shim is offered the
+    // whole site. A token is one segment and never empty.
+    for (const path of ['/', '/j', '/j/', '/january', '/j/a/b', '/api/state']) {
+      expect(INVITE_PATH.test(path)).toBe(false);
+    }
   });
 
   /* -- what is absent, and says so --------------------------------- */

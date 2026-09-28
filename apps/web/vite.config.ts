@@ -18,6 +18,18 @@ import { defineConfig, type Plugin } from 'vite';
 const worker = process.env.WORKER_ORIGIN ?? 'http://127.0.0.1:8787';
 
 /**
+ * The demo build (see src/main.ts) is the whole API in the page, so there is no
+ * Worker to forward anything to — and the proxy below is inherited by
+ * `vite preview`, which is how the demo is looked at before it is deployed.
+ *
+ * Left in, a navigation to an invite link is a **502** from a proxy to nothing,
+ * where Pages answers 404 and `pagesSpaFallback()` hands over the shell. A
+ * preview that differs from production on the one path a player arrives by is
+ * the failure this file exists to prevent.
+ */
+const demo = process.env.VITE_DEMO === '1';
+
+/**
  * GitHub Pages has no SPA fallback: an unknown path gets `404.html`, or GitHub's
  * own 404 page when there is none. So the shell is emitted under both names.
  * Without it, a cold load of anything but `/` — an invite link pasted into a
@@ -82,14 +94,16 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: {
-      '/api': worker,
-      '/i': worker,
-      // Without this, Vite's SPA fallback answers the invite link with index.html
-      // and a 200, the cookie is never set, and the player lands on the master
-      // login screen holding a password they do not have.
-      '/j': worker,
-      '/ws': { target: worker.replace(/^http/, 'ws'), ws: true },
-    },
+    proxy: demo
+      ? undefined
+      : {
+          '/api': worker,
+          '/i': worker,
+          // Without this, Vite's SPA fallback answers the invite link with
+          // index.html and a 200, the cookie is never set, and the player lands
+          // on the master login screen holding a password they do not have.
+          '/j': worker,
+          '/ws': { target: worker.replace(/^http/, 'ws'), ws: true },
+        },
   },
 });

@@ -32,9 +32,11 @@ import { DemoWorld, type GeoProfiles, type Session } from './world.ts';
  *
  * - **Ingest** (`/i/<secret>`, R-01..R-04). There are no phones. The players
  *   here walk because this file walks them; nothing is being tracked.
- * - **The invite link as an invitation.** `/j/<token>` still works, but it
- *   switches *this* browser to that player's view rather than authenticating a
- *   phone — which is the useful half, and is why the panel's links are left in.
+ * - **The invite link as an invitation.** `/j/<token>` switches *this* browser
+ *   to that player's view rather than authenticating a phone — which is the
+ *   useful half, and is why the panel's links are left in. On a static host it
+ *   arrives as a navigation rather than as a `fetch`, so `install.ts` redeems
+ *   it on boot; see `INVITE_PATH` below.
  * - **`POST /api/master/game/basemap`.** The archives ship with the bundle and
  *   there is no object storage to point at.
  *
@@ -44,6 +46,18 @@ import { DemoWorld, type GeoProfiles, type Session } from './world.ts';
  */
 
 const MASTER_SESSION_ID = 'demo-master';
+
+/**
+ * The invite path, exported because **two** things have to recognise it and
+ * only one of them is the router.
+ *
+ * A static host has no redirect to give, so `/j/<token>` reaches the browser as
+ * a *navigation*: the shell comes back as `404.html` and the patched `fetch`
+ * never sees the path that brought it here. `install.ts` matches on this and
+ * makes the request itself. Two copies of the pattern would be two answers to
+ * what a link the panel printed actually is.
+ */
+export const INVITE_PATH = /^\/j\/([A-Za-z0-9_-]+)$/;
 
 export class DemoServer {
   readonly world: DemoWorld;
@@ -91,7 +105,7 @@ export class DemoServer {
     // code: a browser is not six phones.
     if (path.startsWith('/i/')) return unimplemented('ingest needs a device posting to a server');
 
-    const invite = /^\/j\/([A-Za-z0-9_-]+)$/.exec(path);
+    const invite = INVITE_PATH.exec(path);
     if (invite) return this.#redeemInvite(invite[1]!);
 
     if (request.method === 'POST' && path === '/api/session/master') {
