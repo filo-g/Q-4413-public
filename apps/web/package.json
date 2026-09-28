@@ -1,0 +1,29 @@
+{
+  "name": "@q4413/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "check": "svelte-check --tsgo --tsconfig ./tsconfig.json",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@fontsource/barlow-condensed": "^5.3.0",
+    "@fontsource/vt323": "^5.3.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "svelte": "5.x",
+    "svelte-check": "^4.7.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.2.2"
+  },
+  "dependencies": {
+    "@q4413/core": "workspace:*",
+    "@q4413/shared": "workspace:*",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
+    "maplibre-gl": "^6.6.0",
+    "pmtiles": "^4.5.0"
+  }
+}

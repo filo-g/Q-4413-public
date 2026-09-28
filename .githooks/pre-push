@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# Refuses a direct push to main.
+#
+# GitHub cannot enforce this: branch protection and rulesets need Pro on a
+# private repository, so the rule lives here instead. It is a habit with a
+# tripwire, not a guarantee — anyone can bypass it, and a second clone without
+# `core.hooksPath` set has no hook at all.
+#
+# Merging a pull request happens on GitHub's side and is unaffected.
+# Deliberate override, for the rare case that is genuinely right:
+#   git push --no-verify
+
+set -eu
+
+protected_branch=main
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  case "$remote_ref" in
+    "refs/heads/$protected_branch")
+      cat >&2 <<MSG
+
+  pre-push: refusing to push straight to '$protected_branch'.
+
+  This repository develops on a branch per milestone and reaches main only
+  through a pull request, so that CI has verified the code before it is
+  merged — and, since a merge to main deploys, before it reaches production.
+
+    git switch -c m3/position-states
+    git push -u origin m3/position-states
+    gh pr create --fill --draft
+
+  See CONTRIBUTING.md. To override on purpose: git push --no-verify
+
+MSG
+      exit 1
+      ;;
+  esac
+done
+
+exit 0

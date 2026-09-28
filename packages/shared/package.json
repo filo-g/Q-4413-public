@@ -1,0 +1,16 @@
+{
+  "name": "@q4413/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./types.ts",
+    "./geo/madrid.geojson": "./geo/madrid.geojson",
+    "./geo/barcelona.geojson": "./geo/barcelona.geojson",
+    "./geo/sevilla.geojson": "./geo/sevilla.geojson"
+  },
+  "scripts": {},
+  "dependencies": {
+    "@types/geojson": "^7946.0.16"
+  }
+}

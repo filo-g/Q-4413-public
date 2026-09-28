@@ -1,0 +1,690 @@
+{
+  "version": 8,
+  "name": "containment-amber",
+  "metadata": {
+    "note": "Amber phosphor basemap. The ONLY symbol layer is roads-labels (R-69): street names, which a town-scale game needs to coordinate by radio and a single venue did not. Every other label the basemap carries — places, POIs, boundaries — is still structurally absent rather than filtered (§14.3), because those layers are never referenced; tests/map.test.ts holds that. Callsigns and marker labels stay DOM markers, since a symbol layer cannot hold a glyph at a fixed screen size the way they need. Verify source-layer and attribute names against the actual basemap build with `pmtiles show <file>` and the Protomaps schema docs; layer names and the `kind` attribute have changed between basemap versions.",
+    "sources": "The pmtiles URL is a placeholder: buildStyle() in map/style.ts replaces it with Game.basemap.pmtilesUrl, and drops the basemap layers entirely when there is no archive to point at. Both GeoJSON sources start empty and are filled with setData() from the projected payload — never fetched, so they work offline and cannot pick up a POI §4 withheld.",
+    "eliminated": "R-22's elimination cross and R-31's drop point are deliberately NOT layers here. They are glyphs, and a glyph has to hold its size on screen the way the circle layers do — geometry in metres grows as the master zooms out, which is right for R-12's uncertainty (a claim in metres) and wrong for a state marker. §14.3 leaves this style with no symbol layer to put a character in, so both are DOM markers in GameMap.svelte, beside the callsign labels that exist for the same reason. The §4 gate is upstream: neither exists unless project() sent an `eliminated` record, which is AUTHORITATIVE-only (R-22) plus the player's own view (R-30.4).",
+    "buildings": "Buildings are a fill plus a separate line layer, and the line may not go back to being the fill's `fill-outline-color`. That property draws exactly one device pixel, cannot be widened, and is not antialiased the way a line layer is — so under R-48's 50° navigation pitch the far edges broke into a dotted shimmer, which is what it looked like from the ground. The archive stops at z15 with 4096-unit tiles (`pmtiles show`), so at z18 a building corner lands on a 1 px grid and at z19 on a 2 px one: the staircase on a diagonal wall is the archive's resolution and not a style fault. The fill is what makes that read as a block of the venue rather than as a broken line."
+  },
+  "glyphs": "/fonts/{fontstack}/{range}.pbf",
+  "sources": {
+    "basemap": {
+      "type": "vector",
+      "url": "pmtiles://REPLACE_ME",
+      "attribution": "© OpenStreetMap contributors"
+    },
+    "game": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+    "positions": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#140f0a"
+      }
+    },
+    {
+      "id": "earth",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "earth",
+      "paint": {
+        "fill-color": "#140f0a"
+      }
+    },
+    {
+      "id": "landuse",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "landuse",
+      "paint": {
+        "fill-color": "#1a140c",
+        "fill-opacity": 0.6
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#0f1418"
+      }
+    },
+    {
+      "id": "water-outline",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "water",
+      "layout": {
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#4a3104",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          13,
+          0.4,
+          18,
+          1.2
+        ]
+      }
+    },
+    {
+      "id": "buildings",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "buildings",
+      "paint": {
+        "fill-color": "#241a0e",
+        "fill-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          14,
+          0,
+          16,
+          0.6,
+          18,
+          0.75
+        ]
+      }
+    },
+    {
+      "id": "buildings-outline",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "buildings",
+      "minzoom": 14,
+      "layout": {
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#4a3104",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          14,
+          0.4,
+          17,
+          0.9,
+          19,
+          1.5
+        ],
+        "line-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          14,
+          0.4,
+          16,
+          0.85
+        ]
+      }
+    },
+    {
+      "id": "roads-minor",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "roads",
+      "filter": [
+        "in",
+        [
+          "get",
+          "kind"
+        ],
+        [
+          "literal",
+          [
+            "minor_road",
+            "path",
+            "other"
+          ]
+        ]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#4a3104",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          13,
+          0.4,
+          18,
+          2
+        ]
+      }
+    },
+    {
+      "id": "roads-medium",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "roads",
+      "filter": [
+        "==",
+        [
+          "get",
+          "kind"
+        ],
+        "medium_road"
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#6b4606",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          13,
+          0.8,
+          18,
+          4
+        ]
+      }
+    },
+    {
+      "id": "roads-major",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "roads",
+      "filter": [
+        "in",
+        [
+          "get",
+          "kind"
+        ],
+        [
+          "literal",
+          [
+            "major_road",
+            "highway"
+          ]
+        ]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#7d5205",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          13,
+          1.4,
+          18,
+          7
+        ]
+      }
+    },
+    {
+      "id": "roads-labels",
+      "type": "symbol",
+      "source": "basemap",
+      "source-layer": "roads",
+      "minzoom": 15,
+      "filter": [
+        "has",
+        "name"
+      ],
+      "layout": {
+        "symbol-placement": "line",
+        "symbol-spacing": 260,
+        "text-field": [
+          "coalesce",
+          [
+            "get",
+            "name:es"
+          ],
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "VT323"
+        ],
+        "text-transform": "uppercase",
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          15,
+          11,
+          19,
+          17
+        ],
+        "text-letter-spacing": 0.04,
+        "text-max-angle": 40,
+        "text-padding": 4
+      },
+      "paint": {
+        "text-color": "#7d5205",
+        "text-halo-color": "#140f0a",
+        "text-halo-width": 1.1
+      }
+    },
+    {
+      "id": "game-zones-fill",
+      "type": "fill",
+      "source": "game",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "ZONE"
+      ],
+      "paint": {
+        "fill-color": "#ffb000",
+        "fill-opacity": [
+          "case",
+          [
+            "get",
+            "closed"
+          ],
+          0,
+          [
+            "get",
+            "highlight"
+          ],
+          0.16,
+          0.04
+        ]
+      }
+    },
+    {
+      "id": "game-zones-glow",
+      "type": "line",
+      "source": "game",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "ZONE"
+      ],
+      "paint": {
+        "line-color": "#ffb000",
+        "line-width": 7,
+        "line-blur": 5,
+        "line-opacity": [
+          "case",
+          [
+            "get",
+            "closed"
+          ],
+          0,
+          [
+            "get",
+            "highlight"
+          ],
+          0.55,
+          0.16
+        ]
+      }
+    },
+    {
+      "id": "game-zones-outline",
+      "type": "line",
+      "source": "game",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "ZONE"
+      ],
+      "paint": {
+        "line-color": [
+          "case",
+          [
+            "get",
+            "highlight"
+          ],
+          "#ffd899",
+          "#ffb000"
+        ],
+        "line-width": [
+          "case",
+          [
+            "get",
+            "highlight"
+          ],
+          2.6,
+          1.4
+        ],
+        "line-dasharray": [
+          7,
+          6
+        ],
+        "line-opacity": [
+          "case",
+          [
+            "all",
+            [
+              "get",
+              "closed"
+            ],
+            [
+              "!",
+              [
+                "get",
+                "highlight"
+              ]
+            ]
+          ],
+          0.3,
+          1
+        ]
+      }
+    },
+    {
+      "id": "game-ingest-area",
+      "type": "line",
+      "source": "game",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "INGEST_AREA"
+      ],
+      "paint": {
+        "line-color": "#b3760a",
+        "line-width": 1,
+        "line-dasharray": [
+          3,
+          4
+        ],
+        "line-opacity": 0.7
+      }
+    },
+    {
+      "id": "game-perimeter",
+      "type": "line",
+      "source": "game",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "PERIMETER"
+      ],
+      "paint": {
+        "line-color": "#ffb000",
+        "line-width": 2.2
+      }
+    },
+    {
+      "id": "game-route",
+      "type": "line",
+      "source": "game",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "ROUTE"
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#ffb000",
+        "line-width": 2,
+        "line-opacity": 0.45
+      }
+    },
+    {
+      "id": "game-course",
+      "type": "line",
+      "source": "game",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "COURSE"
+      ],
+      "layout": {
+        "line-cap": "round"
+      },
+      "paint": {
+        "line-color": "#ffd899",
+        "line-width": 1.6,
+        "line-dasharray": [
+          1,
+          2
+        ],
+        "line-opacity": 0.85
+      }
+    },
+    {
+      "id": "position-uncertainty-fill",
+      "type": "fill",
+      "source": "positions",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "UNCERTAINTY"
+      ],
+      "paint": {
+        "fill-color": "#ffb000",
+        "fill-opacity": 0.07
+      }
+    },
+    {
+      "id": "position-uncertainty-line",
+      "type": "line",
+      "source": "positions",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "UNCERTAINTY"
+      ],
+      "paint": {
+        "line-color": "#ffb000",
+        "line-width": 1,
+        "line-dasharray": [
+          3,
+          3
+        ],
+        "line-opacity": 0.5
+      }
+    },
+    {
+      "id": "position-unlocatable",
+      "type": "circle",
+      "source": "positions",
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "featureType"
+          ],
+          "DOT"
+        ],
+        [
+          "get",
+          "unlocatable"
+        ]
+      ],
+      "paint": {
+        "circle-radius": 16,
+        "circle-color": "rgba(0,0,0,0)",
+        "circle-stroke-color": "#ffb000",
+        "circle-stroke-width": 1,
+        "circle-stroke-opacity": 0.35
+      }
+    },
+    {
+      "id": "position-selected",
+      "type": "circle",
+      "source": "positions",
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "featureType"
+          ],
+          "DOT"
+        ],
+        [
+          "get",
+          "selected"
+        ]
+      ],
+      "paint": {
+        "circle-radius": 13,
+        "circle-color": "rgba(0,0,0,0)",
+        "circle-stroke-color": "#ffd899",
+        "circle-stroke-width": 2
+      }
+    },
+    {
+      "id": "position-dots",
+      "type": "circle",
+      "source": "positions",
+      "filter": [
+        "==",
+        [
+          "get",
+          "featureType"
+        ],
+        "DOT"
+      ],
+      "paint": {
+        "circle-radius": [
+          "case",
+          [
+            "==",
+            [
+              "get",
+              "kind"
+            ],
+            "SELF"
+          ],
+          7,
+          5
+        ],
+        "circle-color": [
+          "case",
+          [
+            "==",
+            [
+              "get",
+              "state"
+            ],
+            "NO_LINK"
+          ],
+          "rgba(0,0,0,0)",
+          [
+            "==",
+            [
+              "get",
+              "kind"
+            ],
+            "DEVICE"
+          ],
+          "rgba(0,0,0,0)",
+          "#ffb000"
+        ],
+        "circle-stroke-color": "#ffb000",
+        "circle-stroke-width": [
+          "case",
+          [
+            "get",
+            "unlocatable"
+          ],
+          2.5,
+          1.5
+        ],
+        "circle-stroke-opacity": [
+          "case",
+          [
+            "get",
+            "unlocatable"
+          ],
+          0.6,
+          1
+        ]
+      }
+    }
+  ]
+}

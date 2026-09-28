@@ -1,0 +1,10 @@
+{
+  "//": "Solution file. Holds no sources; `tsc --build` walks the references. apps/web is absent on purpose — svelte-check owns it (see ROADMAP M0).",
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/core" },
+    { "path": "./workers" },
+    { "path": "./tsconfig.tests.json" }
+  ]
+}

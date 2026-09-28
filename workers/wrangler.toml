@@ -1,0 +1,78 @@
+name = "q4413"
+main = "src/index.ts"
+compatibility_date = "2026-08-27"
+
+# Both off, and this is a security decision rather than tidiness. Cloudflare
+# Access cannot front a `workers.dev` hostname, so leaving either enabled would
+# publish the master route on an origin Access does not protect — reachable by
+# anyone who guesses the subdomain, with only the password in the way. That is
+# the exact hole having a domain was meant to close (§6.2).
+#
+# These are top-level keys on purpose: placed after a [[table]] header, TOML
+# would read them as keys of that table and silently ignore them here.
+workers_dev = false
+preview_urls = false
+
+# Custom domain (M2b). `custom_domain = true` has wrangler provision the DNS
+# record and the certificate for the hostname; a plain route would expect a
+# proxied record to exist already. The subdomain is dedicated to this Worker, so
+# the whole hostname is the pattern rather than a path prefix.
+#
+# **The hostname below is a placeholder.** Put your own in before deploying —
+# `wrangler deploy` will otherwise try to provision a domain that is not yours.
+[[routes]]
+pattern = "q4413.example.com"
+custom_domain = true
+
+# One Durable Object per game (§6.1). SQLite-backed: track history lives
+# inside it (~17.000 points for a 6-player, 4-hour game).
+[[durable_objects.bindings]]
+name = "GAME"
+class_name = "GameDurableObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GameDurableObject"]
+
+[observability]
+enabled = true
+
+# One origin, not two (M2b). §6.1 puts the PWA on Pages and the API on Workers;
+# now that players authenticate by an invite token rather than through Access,
+# serving the built bundle from the Worker itself is the simpler shape: one
+# hostname, one deploy, and no cross-origin argument about whether the session
+# cookie or the WebSocket upgrade arrives.
+#
+# `pnpm build` has to run before `wrangler deploy`, or this directory is stale.
+[assets]
+directory = "../apps/web/dist"
+
+# Client-side routing: an unknown path is a route, not a 404.
+not_found_handling = "single-page-application"
+
+# Load-bearing. With SPA handling and no run_worker_first, the asset router
+# answers *everything* with index.html and the Worker never runs — ingest,
+# sessions and the socket all silently become the login screen. These four are
+# the whole server surface (§5): /i/ ingest, /j/ invite redemption, /api/ and /ws.
+run_worker_first = ["/i/*", "/j/*", "/api/*", "/ws"]
+
+# game.geojson is bundled as text and parsed at startup. It stays a GeoJSON file
+# rather than a .ts literal so a new location is a config edit, not a code change
+# (§11, §14.6).
+[[rules]]
+type = "Text"
+globs = ["**/*.geojson"]
+# Without this, this rule replaces wrangler's default Text rules instead of
+# adding to them, and .txt/.html/.sql imports stop working.
+fallthrough = true
+
+# The ingest path secret (R-02) is a secret, never a var:
+#   wrangler secret put INGEST_SECRET
+#
+# Cloudflare Access needs one bypass rule, or ingest returns a login page on
+# game night (§6.2):
+#   - /i/<secret>/*        Traccar Client cannot log in
+#
+# It used to need two. The basemap was an R2 object on another origin needing
+# public read; under R-52b it is a static asset served from this Worker, so it
+# is covered by whatever already lets a player load the bundle.

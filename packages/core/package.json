@@ -1,0 +1,15 @@
+{
+  "name": "@q4413/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {},
+  "dependencies": {
+    "@q4413/shared": "workspace:*",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
+    "polygon-clipping": "^0.15.7"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "//": "Not a composite project: svelte-check owns this one, since it is the only checker that can read .svelte. It generates its own tsconfig with incremental disabled, which composite forbids.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.svelte", "locales/*.json"],
+  "references": [{ "path": "../../packages/shared" }]
+}

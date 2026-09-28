@@ -1,0 +1,470 @@
+{
+  "boot": {
+    "model": "Mod. Q-4413",
+    "status": "SIN ENLACE DE DATOS",
+    "maker": "Ma.Anon. Software Labs Inc.",
+    "group": "CobreCo. Corp. · sistema financiado por CobreCo. Internal Bank",
+    "program": "Sistema de seguimiento y control de personal en campo",
+    "//version": "Fiction, like the maker and the group above it, and it is not maintained and must not be: it is the machine's firmware, not this repository's. A version in the UI that tracks the project rots by construction — a header here said M3 for six milestones. 3.07 is the one repo fact that is already frozen in the fiction's favour (the normative spec is HANDOFF-v3, its third revision) over a patch level that reads as a machine patched a few times and then left alone, which is the boot credit's joke: the bank and the manufacturer are the same group.",
+    "version": "Ver. 3.07",
+    "ready": "TERMINAL LISTA",
+    "warningTitle": "A V I S O",
+    "warning": [
+      "ESTE SISTEMA ES PROPIEDAD DE CobreCo. Corp. EL PERSONAL EN CAMPO NO DEBE",
+      "ESPERAR PRIVACIDAD ALGUNA: SU POSICIÓN, SU SECTOR Y SU TRAYECTO SE REGISTRAN",
+      "DE FORMA CONTINUA Y SE CONSERVAN AL FINALIZAR LA JORNADA.",
+      "",
+      "LA DIRECCIÓN PUEDE SUSPENDER EL ENLACE SIN AVISO PREVIO, ALTERAR QUIÉN VE A",
+      "QUIÉN, RETIRAR PUNTOS DEL MAPA SIN NOTIFICACIÓN Y CONSULTAR EL REGISTRO",
+      "COMPLETO DE CUALQUIER OPERARIO.",
+      "",
+      "EL PERSONAL NO SERÁ INFORMADO DE LAS BAJAS DE OTROS OPERARIOS. LA BAJA DE UN",
+      "OPERARIO NO INTERRUMPE SU REGISTRO Y SOLO PUEDE SER REVERTIDA POR LA",
+      "DIRECCIÓN.",
+      "",
+      "Ma.Anon. Software Labs Inc. NO GARANTIZA LA EXACTITUD DE NINGUNA POSICIÓN NI",
+      "LA CONTINUIDAD DEL SERVICIO. LAS INCIDENCIAS SE COMUNICAN A CobreCo.",
+      "Internal Bank A EFECTOS DE NÓMINA."
+    ],
+    "warningConsent": "EL USO DE ESTE SISTEMA CONSTITUYE CONSENTIMIENTO AL SEGUIMIENTO.",
+    "warningPresence": "LA PERMANENCIA EN EL ÁREA CONSTITUYE USO.",
+    "warningAccept": "Continuar con el acceso implica aceptar esta política.",
+    "skip": "Toca o pulsa una tecla para saltar",
+    "ok": "OK",
+    "checks": [
+      "MEMORIA DE NÚCLEO 64K",
+      "CONTROLADOR DE VÍDEO",
+      "TUBO DE FÓSFORO",
+      "RELOJ DE SESIÓN",
+      "ENLACE DE DATOS",
+      "CANAL DE INGESTA",
+      "ARCHIVO CARTOGRÁFICO",
+      "GEOMETRÍA DE PERÍMETRO",
+      "GEOMETRÍA DE SECTORES",
+      "ÁREA DE INGESTA",
+      "PUNTOS DE INTERÉS",
+      "REGISTRO DE EVENTOS",
+      "ALMACÉN DE TRAYECTORIAS",
+      "VINCULACIÓN DE DISPOSITIVOS",
+      "PROYECCIÓN DE VISIBILIDAD",
+      "AVISO DE PERÍMETRO",
+      "CADUCIDAD DE MARCAS",
+      "MODO DE VISTA",
+      "SOCKET DE ESTADO",
+      "CACHÉ SIN CONEXIÓN",
+      "CONSOLA DE DIRECCIÓN"
+    ]
+  },
+  "link": {
+    "label": "ENLACE",
+    "connected": "CONECTADO",
+    "connecting": "CONECTANDO",
+    "offline": "SIN CONEXIÓN"
+  },
+  "game": {
+    "state": "ESTADO",
+    "cut": "CORTE",
+    "cutOn": "CORTADO",
+    "cutOff": "ABIERTO",
+    "states": {
+      "PREPARATION": "PREPARACIÓN",
+      "IN_PROGRESS": "EN CURSO",
+      "PAUSED": "EN PAUSA",
+      "FINISHED": "FINALIZADA"
+    },
+    "name": "NOMBRE DE LA PARTIDA"
+  },
+  "players": {
+    "title": "JUGADORES",
+    "callsign": "INDICATIVO",
+    "team": "EQUIPO",
+    "device": "DISPOSITIVO",
+    "age": "EDAD",
+    "battery": "BATERÍA",
+    "noDevice": "SIN VINCULAR",
+    "noPosition": "SIN POSICIÓN",
+    "eliminated": "ELIMINADO",
+    "link": "ENLACE",
+    "radio": "RADIO",
+    "recordRadio": "ANOTAR CONTACTO POR RADIO",
+    "centre": "CENTRAR EN EL MAPA",
+    "revive": "REVIVIR",
+    "reviveConfirm": "Vas a deshacer la eliminación de",
+    "dropPoint": "PUNTO DE CAÍDA",
+    "noDropPoint": "SIN POSICIÓN AL CAER",
+    "zone": "ZONA",
+    "place": "UBICACIÓN"
+  },
+  "tray": {
+    "title": "DISPOSITIVOS SIN VINCULAR",
+    "device": "DISPOSITIVO",
+    "firstSeen": "PRIMER CONTACTO",
+    "lastSeen": "ÚLTIMO CONTACTO",
+    "pings": "PINGS",
+    "pair": "VINCULAR",
+    "empty": "NINGÚN DISPOSITIVO HA ENVIADO POSICIÓN TODAVÍA"
+  },
+  "units": {
+    "//": "`~` and not `≈`, for the reason `Select.svelte` gives its caret: neither shipped font carries `≈`, and a tofu box in front of a number is worse than a rougher operator. It is also the more period one — a ROM character set of this vintage had no `≈` — and it pairs with the `<` that `walkingEta()` already prints below a minute.",
+    "seconds": "s",
+    "minutes": "min",
+    "hours": "h",
+    "percent": "%",
+    "approx": "~"
+  },
+  "map": {
+    "title": "MAPA",
+    "navigation": "MODO NAVEGACIÓN",
+    "overview": "VISTA GENERAL",
+    "attribution": "© OpenStreetMap contributors",
+    "noBasemap": "SIN CARTOGRAFÍA DESCARGADA: solo se dibuja la geometría del juego.",
+    "loading": "CARGANDO CARTOGRAFÍA...",
+    "fault": "FALLO DE CARTOGRAFÍA",
+    "recentre": "CENTRAR EN MI POSICIÓN",
+    "fullscreen": "PANTALLA COMPLETA",
+    "windowed": "SALIR DE PANTALLA COMPLETA",
+    "showOnMap": "VER EN EL MAPA"
+  },
+  "compass": [
+    "N",
+    "NE",
+    "E",
+    "SE",
+    "S",
+    "SO",
+    "O",
+    "NO"
+  ],
+  "perimeter": {
+    "approaching": "TE ACERCAS AL LÍMITE DEL RECINTO",
+    "outside": "ESTÁS FUERA DEL RECINTO",
+    "return": "VUELVE HACIA",
+    "distance": "A",
+    "alert": "! PERÍMETRO"
+  },
+  "login": {
+    "title": "ACCESO DE DIRECCIÓN",
+    "password": "CONTRASEÑA",
+    "submit": "ENTRAR",
+    "failed": "CONTRASEÑA INCORRECTA",
+    "throttled": "DEMASIADOS INTENTOS. ESPERA",
+    "playerHint": "Los jugadores no usan contraseña: entran con su enlace de invitación.",
+    "prompt": "ACCESO DE DIRECCIÓN",
+    "granted": "ACCESO CONCEDIDO"
+  },
+  "session": {
+    "logout": "SALIR",
+    "master": "CONTROL",
+    "player": "JUGADOR"
+  },
+  "view": {
+    "label": "VISTA",
+    "OPERATIONAL": "OPERATIVA",
+    "AUTHORITATIVE": "AUTORIZADA",
+    "warning": "La vista AUTORIZADA muestra eliminaciones y puntos de caída. No compartas nada de esto por radio.",
+    "confirm": {
+      "title": "VAS A ABRIR LA VISTA AUTORIZADA",
+      "body": "Vas a ver información real de los jugadores eliminados: quién está fuera, dónde cayó y a qué hora.",
+      "duty": "No se lo digas a nadie, y sobre todo no dejes que cambie lo que dices por radio. Un eliminado no debe enterarse por ti de que lo sabes.",
+      "logged": "La apertura queda registrada con la hora.",
+      "revert": "Vuelve sola a OPERATIVA a los 10 minutos sin tocar nada. Leer el mapa no cuenta como tocar.",
+      "accept": "ABRIR VISTA AUTORIZADA",
+      "cancel": "CANCELAR"
+    },
+    "revertsIn": "REVIERTE EN",
+    "reverted": "La vista AUTORIZADA revirtió a OPERATIVA por inactividad. Vuelve a abrirla si la necesitas."
+  },
+  "invites": {
+    "title": "ENLACES DE INVITACIÓN",
+    "player": "JUGADOR",
+    "link": "ENLACE",
+    "copy": "COPIAR",
+    "copied": "COPIADO",
+    "hint": "Un enlace por jugador y partida. Caducan al finalizar la partida.",
+    "reveal": "VER ENLACES"
+  },
+  "events": {
+    "title": "REGISTRO",
+    "time": "HORA",
+    "kind": "TIPO",
+    "detail": "DETALLE",
+    "empty": "SIN ACTIVIDAD REGISTRADA"
+  },
+  "player": {
+    "self": "TU POSICIÓN",
+    "sameZone": "EN TU ZONA",
+    "outOfZone": "FUERA DE TU ZONA",
+    "outOfZoneHint": "De quien no está en tu zona solo conoces el indicativo. Los campos sin resolver salen como ruido.",
+    "noPlayers": "NADIE MÁS EN TU ZONA",
+    "distance": "DISTANCIA",
+    "zone": "ZONA",
+    "pois": "PUNTOS",
+    "marker": "MARCAS DE DIRECCIÓN",
+    "noMarker": "SIN MARCAS ACTIVAS",
+    "eliminated": "ELIMINADO",
+    "metres": "m",
+    "uncertainty": "INCERTIDUMBRE",
+    "team": "TU EQUIPO",
+    "roster": "PERSONAL",
+    "unknown": "SIN RESOLVER"
+  },
+  "state": {
+    "MOVING": "EN MOVIMIENTO",
+    "STATIONARY": "DETENIDO",
+    "NO_LINK": "SIN ENLACE"
+  },
+  "radio": {
+    "ACCOUNTED": "LOCALIZADO POR RADIO",
+    "UNACCOUNTED": "SIN LOCALIZAR",
+    "none": "—",
+    "by": "por",
+    "byMaster": "CONTROL",
+    "record": "ANOTAR CONTACTO",
+    "hint": "Anota que has hablado por radio con alguien. Vale cinco minutos y solo se muestra cuando esa persona pierde el enlace. No es una alarma."
+  },
+  "geo": {
+    "label": "GEOMETRÍA",
+    "zones": "ZONAS",
+    "profiles": {
+      "madrid": "MADRID",
+      "barcelona": "BARCELONA",
+      "sevilla": "SEVILLA"
+    },
+    "hint": "Cambia el área de juego. Solo fuera de partida: las zonas deciden quién ve a quién, y moverlas en mitad de una partida lo reescribe sin avisar. Al cambiar se recalcula la zona de cada jugador. Para abrir y cerrar terreno en marcha, usa SECTORES.",
+    "lockedHint": "Partida EN CURSO: la geometría no se puede cambiar. Pon la partida en PAUSA o PREPARACIÓN."
+  },
+  "roster": {
+    "column": "ALTA",
+    "add": "AÑADIR",
+    "remove": "QUITAR",
+    "fullName": "NOMBRE",
+    "invite": "ENLACE DE INVITACIÓN",
+    "confirm": "Se le retira el enlace de invitación y no hay vuelta atrás. Quitar a",
+    "hint": "Alta y baja de jugadores. Solo fuera de partida: quitar a alguien le invalida el enlace que ya tiene en el móvil.",
+    "lockedHint": "Partida EN CURSO: el listado no se toca. Pon la partida en PAUSA o PREPARACIÓN.",
+    "errors": {
+      "CALLSIGN_REQUIRED": "Falta el indicativo.",
+      "CALLSIGN_INVALID": "El indicativo solo admite letras, números, espacios y guiones.",
+      "CALLSIGN_TAKEN": "Ese indicativo ya está en uso.",
+      "FULL_NAME_REQUIRED": "Falta el nombre.",
+      "UNKNOWN_TEAM": "Ese equipo no existe.",
+      "NO_TEAMS": "No hay ningún equipo al que asignarlo.",
+      "UNKNOWN_PLAYER": "Ese jugador ya no está en el listado.",
+      "IN_PROGRESS": "No se puede con la partida EN CURSO.",
+      "UNKNOWN": "No se pudo completar. Mira la consola.",
+      "TEAM_NAME_REQUIRED": "Falta el nombre del equipo.",
+      "TEAM_NAME_INVALID": "Ese nombre de equipo no vale.",
+      "TEAM_TAKEN": "Ya hay un equipo con ese nombre.",
+      "TEAM_NOT_EMPTY": "Ese equipo todavía tiene jugadores. Muévelos antes de borrarlo.",
+      "LAST_TEAM": "No se puede borrar el último equipo: sin equipos no se puede dar de alta a nadie."
+    }
+  },
+  "teams": {
+    "title": "EQUIPOS",
+    "label": "EQUIPO",
+    "name": "NOMBRE",
+    "members": "EFECTIVOS",
+    "add": "CREAR",
+    "rename": "RENOMBRAR",
+    "remove": "BORRAR",
+    "renamePrompt": "Nuevo nombre del equipo",
+    "confirm": "Borrar el equipo",
+    "hint": "Los equipos deciden a quién van dirigidos los puntos y las marcas de dirección. No dan visibilidad: alguien de tu equipo en otra zona es tan invisible como cualquiera. Un equipo con jugadores dentro no se puede borrar, muévelos antes.",
+    "none": "SIN EQUIPO"
+  },
+  "reset": {
+    "title": "REINICIAR PARTIDA",
+    "button": "BORRAR Y EMPEZAR DE CERO",
+    "prompt": "Esto borra la partida entera y la crea de nuevo con el listado de fábrica. No hay vuelta atrás. Se descargará una copia de lo anterior. Escribe el nombre de la partida para confirmar:",
+    "hint": "Borra jugadores, equipos, vínculos, registro y estado, y siembra todo de cero. Antes te descarga una copia en JSON, que es la única que va a haber. Ningún despliegue hace esto: la partida solo lee su semilla al nacer.",
+    "lockedHint": "Partida EN CURSO: no se puede reiniciar. Pon la partida en PAUSA o PREPARACIÓN.",
+    "modeHint": "REINICIAR solo está disponible en vista AUTORIZADA: es la única acción sin vuelta atrás y no se toma de pasada."
+  },
+  "marker": {
+    "title": "MARCAS DE DIRECCIÓN",
+    "active": "MARCAS ACTIVAS",
+    "none": "SIN MARCAS ACTIVAS",
+    "label": "ETIQUETA",
+    "lat": "LAT",
+    "lon": "LNG",
+    "audience": "DESTINO",
+    "everyone": "TODOS",
+    "team": "EQUIPO",
+    "player": "JUGADOR",
+    "ttl": "DURACIÓN",
+    "place": "COLOCAR",
+    "open": "COLOCAR MARCA",
+    "clear": "BORRAR",
+    "expiresIn": "CADUCA EN",
+    "pickHint": "Toca el mapa o la dispersión para tomar el punto.",
+    "arm": "TOMAR DEL MAPA",
+    "armCancel": "CANCELAR",
+    "hint": "Hasta 5 marcas a la vez. La sexta se rechaza: ninguna marca desaparece del mapa de un jugador porque coloques otra.",
+    "errors": {
+      "LABEL_REQUIRED": "Hace falta una etiqueta.",
+      "LABEL_TOO_LONG": "La etiqueta es demasiado larga.",
+      "BAD_POSITION": "Las coordenadas no son un par de números válido.",
+      "OUTSIDE_INGEST_AREA": "Ese punto cae fuera del área de ingesta. ¿Latitud y longitud cambiadas?",
+      "BAD_AUDIENCE": "Elige a quién va dirigida.",
+      "UNKNOWN_TEAM": "Ese equipo no existe.",
+      "UNKNOWN_PLAYER": "Ese jugador no existe.",
+      "BAD_TTL": "La duración está fuera de los límites.",
+      "UNKNOWN": "No se pudo colocar la marca.",
+      "MARKER_LIMIT": "Ya hay 5 marcas activas. Borra una antes de poner otra."
+    },
+    "ttls": {
+      "60000": "1 min",
+      "300000": "5 min",
+      "900000": "15 min",
+      "3600000": "1 h",
+      "0": "SIN CADUCIDAD"
+    },
+    "slots": "de 5",
+    "indefinite": "SIN CADUCIDAD",
+    "clearAll": "BORRAR TODAS",
+    "limit": "Ya hay 5 marcas. Borra una antes de poner otra."
+  },
+  "pois": {
+    "title": "PUNTOS",
+    "distance": "DISTANCIA",
+    "eta": "A PIE",
+    "entranceTo": "ENTRA A",
+    "near": "CERCA",
+    "category": {
+      "OBJECTIVE": "OBJETIVO",
+      "MEETING_POINT": "PUNTO DE REUNIÓN",
+      "ENTRANCE": "ENTRADA",
+      "HAZARD": "PELIGRO",
+      "OTHER": "OTRO"
+    },
+    "empty": "SIN PUNTOS",
+    "noPosition": "Sin posición propia no hay distancias que dar.",
+    "masterHint": "Los puntos son configuración: se editan en la geometría, no aquí. El rombo lleva la cámara al punto y abre su ficha. El ojo lo quita del mapa de TODOS los jugadores y sigue quitado tras recargar; queda en el registro y la fila se queda aquí para poder devolverlo.",
+    "hide": "OCULTAR",
+    "show": "MOSTRAR",
+    "locate": "VER EN EL MAPA"
+  },
+  "comms": {
+    "title": "ALCANCE DE EQUIPO",
+    "enable": "AMPLIAR",
+    "levels": {
+      "3": "Solo tu zona. Nadie ve a su equipo fuera de ella.",
+      "4": "Tu zona, y a los de tu equipo en cualquier zona de tu sector.",
+      "5": "Tu zona, y a los de tu equipo estén donde estén."
+    },
+    "short": {
+      "3": "SOLO TU ZONA",
+      "4": "EQUIPO EN TU SECTOR",
+      "5": "EQUIPO EN TODAS PARTES"
+    },
+    "hint": "Solo se amplía el alcance del equipo. El reparto por zonas no cambia en ningún nivel: fuera de tu equipo no se ve nada distinto. Quien está en terreno cerrado no tiene zona, así que tampoco entra por aquí.",
+    "warning": "Cambia quién ve a quién y no aparece en ninguna pantalla salvo esta y el medidor QSA. Queda en el registro."
+  },
+  "eliminate": {
+    "title": "DARSE POR ELIMINADO",
+    "hold": "MANTÉN PULSADO 3 s",
+    "holding": "SIGUE PULSANDO…",
+    "hint": "Nadie recibe aviso. Para el resto simplemente te quedas sin enlace, igual que si se te agotara la batería.",
+    "irreversible": "No puedes deshacerlo tú. Solo la dirección.",
+    "done": "ESTÁS ELIMINADO",
+    "doneHint": "Conservas tu posición, tus puntos, tus marcas y las zonas. Dejas de ver a los demás.",
+    "cancelled": "SOLTASTE ANTES DE TIEMPO. NO SE HA DECLARADO NADA."
+  },
+  "replay": {
+    "title": "REPETICIÓN",
+    "open": "ABRIR REPETICIÓN",
+    "loading": "CARGANDO HISTORIAL...",
+    "live": "EN DIRECTO",
+    "backToLive": "VOLVER A DIRECTO",
+    "play": "REPRODUCIR",
+    "pause": "PAUSA",
+    "speed": "VELOCIDAD",
+    "samples": "POSICIONES",
+    "banner": "REPETICIÓN: el mapa, el listado y el registro muestran el pasado, no lo que está pasando ahora.",
+    "hint": "El historial se descarga entero y se mueve en local, así que el cursor funciona sin cobertura.",
+    "errors": {
+      "AUTHORITATIVE": "La repetición necesita la vista AUTORIZADA. Vuelve a abrirla y reinténtalo.",
+      "SESSION": "La sesión caducó. Vuelve a entrar.",
+      "UNKNOWN": "No se pudo descargar el historial."
+    },
+    "exportJson": "DESCARGAR DATOS",
+    "exportJsonHint": "Posiciones reales, eliminaciones y puntos de caída de personas con nombre. Guárdalo donde corresponda.",
+    "record": "GRABAR VÍDEO",
+    "recordStop": "DETENER GRABACIÓN",
+    "recordHint": "Graba esta pestaña entera. Los controles se ocultan mientras dura; ESC detiene la grabación.",
+    "recordErrors": {
+      "UNSUPPORTED": "Este navegador no puede grabar la pantalla.",
+      "DENIED": "Grabación cancelada.",
+      "UNKNOWN": "No se pudo iniciar la grabación."
+    },
+    "rec": "REC"
+  },
+  "terminal": {
+    "contrast": "CONTRASTE",
+    "screenLabel": "TUBO PRINCIPAL",
+    "modes": {
+      "normal": "NORMAL",
+      "high": "ALTO",
+      "daylight": "DIURNO"
+    },
+    "awake": "VIGILIA"
+  },
+  "panels": {
+    "team": "PERSONAL",
+    "game": "PARTIDA",
+    "marks": "MAPA",
+    "log": "REGISTRO",
+    "replay": "REPETICIÓN",
+    "close": "CERRAR",
+    "open": "ABRIR PANEL"
+  },
+  "hud": {
+    "near": "CERCA",
+    "points": "PUNTOS",
+    "marks": "MARCAS",
+    "noFix": "SIN POSICIÓN",
+    "battery": "BAT",
+    "nearest": "MÁS CERCA",
+    "heading": "RUMBO",
+    "team": "EQUIPO"
+  },
+  "qsa": {
+    "//": "What the meter's three levels mean, in a line each. QSA is a 1-to-5 signal report on a real set (R-29), and what this app puts on that scale is how much of the game a screen is being told — which is the same question, and the reason the gauge reads without a legend.",
+    "none": "SIN ENLACE · no llega nada del servidor",
+    "3": "ALCANCE 3 · solo ves tu zona",
+    "4": "ALCANCE 4 · tu equipo en tu sector",
+    "5": "ALCANCE 5 · tu equipo en cualquier sitio"
+  },
+  "q": {
+    "//": "Q code, the signal abbreviations a radio operator already speaks. R-29 makes this game run on walkies, so it is the register the players are in — and a three-letter label reads at arm's length where a Spanish word does not.",
+    "qra": "QRA",
+    "qth": "QTH",
+    "qsa": "QSA",
+    "qrv": "QRV",
+    "qrp": "QRP",
+    "qsl": "QSL",
+    "qrb": "QRB"
+  },
+  "card": {
+    "close": "CERRAR",
+    "source": "ORIGEN",
+    "live": "EN VIVO",
+    "lastKnown": "ÚLTIMA CONOCIDA"
+  },
+  "select": {
+    "//": "The mark beside the chosen row of a dropdown. `>` and not `✓` because neither shipped font has `✓`, and a terminal menu’s own selector is what a missing tick should fall back to rather than a tofu box — the same call `Select.svelte` makes for its caret. Not `×`, which is the shape of §9.7’s ✕ and means a player is out.",
+    "mark": ">"
+  },
+  "sectors": {
+    "title": "SECTORES",
+    "zones": "ZONAS",
+    "closed": "CERRADO",
+    "close": "CERRAR",
+    "open": "ABRIR",
+    "closeAll": "CERRAR DISTRITO",
+    "openAll": "ABRIR DISTRITO",
+    "empty": "SIN SECTORES",
+    "hint": "Pasa el ratón por una fila y se enciende en el mapa: los nombres no caben en el dibujo, así que esta lista es el índice. El ojo cierra terreno — en una zona la cierra a ella, en un sector cierra todas las suyas, y CERRAR DISTRITO cierra el pueblo entero. Cerrar quita sus zonas y sus puntos del mapa de todos los jugadores; tú sigues viendo el contorno apagado para poder reabrirlo. Se puede hacer EN CURSO — quien se quede dentro sigue emitiendo y tú lo sigues viendo, pero desaparece para los demás jugadores y deja de verlos. Queda en el registro.",
+    "locate": "VER EN EL MAPA"
+  }
+}

@@ -1,0 +1,54 @@
+Q-4413
+======
+
+The **code** in this repository is under the MIT licence — see [LICENSE](LICENSE).
+
+The **map data is not**, and it is in here. Two licences, because they cover two
+different things, and a repository that shipped one notice for both would be
+making a claim about the data it is not entitled to make.
+
+Basemap archives
+----------------
+
+    apps/web/public/basemap/v3/*.pmtiles
+
+These are extracts of a Protomaps daily planet build, which is derived from
+**OpenStreetMap**. The data is:
+
+> © OpenStreetMap contributors, available under the Open Database License
+> (ODbL) 1.0 — https://www.openstreetmap.org/copyright
+> https://opendatacommons.org/licenses/odbl/1-0/
+
+What that requires of anyone who redistributes these files, or a map made from
+them:
+
+- **Attribution.** The credit above has to be visible to the reader. In this app
+  it is silkscreened on the case bezel beside the `Mod. Q-4413` plate, outside
+  the phosphor area (§14.5 of the handoff) — it is in
+  `apps/web/locales/es.json` under `map.attribution`, and removing it is a
+  licence violation, not a design decision.
+- **Share-alike on the data.** A modified or derived *database* distributed
+  publicly has to be offered under ODbL as well. That is about the data; it does
+  not reach the MIT-licensed code that reads it.
+
+Replacing the archives with an extract of your own does not change any of this
+while the source is OpenStreetMap. If you cut them from something else, replace
+the credit with whatever that source requires.
+
+Game geometry
+-------------
+
+    packages/shared/geo/*.geojson
+
+Invented, not traced: rectangles over three city centres, with generic names.
+They describe no real venue and are not derived from OpenStreetMap. They are
+part of this repository and are covered by the MIT licence above.
+
+**Never put fictional game geometry into OpenStreetMap.** Zones, POIs and the
+perimeter live in these files only.
+
+Fonts
+-----
+
+VT323 and Barlow Condensed, both under the SIL Open Font License 1.1, installed
+from `@fontsource/*`. Their own licence files ship inside those packages.

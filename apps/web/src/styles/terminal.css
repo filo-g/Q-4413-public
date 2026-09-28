@@ -1,0 +1,1131 @@
+/**
+ * §9's art direction, as tokens. The one stylesheet in the app.
+ *
+ * Everything before M9 styled itself: six `<style>` blocks, `ui-monospace`, and
+ * browser defaults. The palette existed as three loose hex values. This is where
+ * the machine's appearance is decided, and component styles read from it rather
+ * than restating it.
+ *
+ * ## Two families, and the distinction is load-bearing
+ *
+ * Screen content is `VT323`; case labelling is `Barlow Condensed`. §9 is explicit
+ * that this contrast is what makes the interface read as hardware rather than as
+ * a colour theme — silkscreened plastic is not phosphor, and the eye knows.
+ *
+ * ## Why the fonts are self-hosted and not linked
+ *
+ * R-52 requires the app to work with no network, and `sw.ts` returns early for
+ * any cross-origin request: `if (url.origin !== self.location.origin) return`.
+ * A `<link>` to a font CDN would therefore never be cached, and a player in a
+ * basement would fall back to system metrics — which changes the character cell,
+ * which §9's grid is measured in. The `@fontsource` packages put the woff2 in
+ * the bundle, where the shell cache picks them up like any other asset.
+ *
+ * Latin subsets only: the UI is Spanish (§0), and every accented character it
+ * uses is in `latin`. The three files are 61 kB together.
+ */
+
+@import '@fontsource/vt323/latin-400.css';
+@import '@fontsource/barlow-condensed/latin-400.css';
+@import '@fontsource/barlow-condensed/latin-600.css';
+
+:root {
+  /* §9's palette, verbatim. Amber, not green: green-on-black reads as Matrix,
+     not 1977. */
+  --phosphor: #ffb000;
+  --phosphor-dim: #b3760a;
+  --phosphor-deep: #6b4606;
+  --phosphor-bright: #ffd899;
+  --screen: #140f0a; /* warm black, never #000 */
+  --alarm: #ff4422; /* the only non-monochrome colour */
+  --case: #b9a88c; /* institutional beige plastic */
+  --case-shadow: #8a7a60;
+  --rust: #9c4a25;
+
+  --screen-font: 'VT323', ui-monospace, monospace;
+  --case-font: 'Barlow Condensed', ui-sans-serif, sans-serif;
+
+  /**
+   * The lettering every label inside the phosphor area shares, and the §9
+   * reading behind it.
+   *
+   * §9 splits the two faces **by domain, not by size**: the tube's content in
+   * `VT323`, the lettering printed on the box around it in a condensed
+   * grotesque. A label naming a reading — QTH, BAT, ESTADO — is still the tube
+   * drawing, so it takes the screen face. The case face is kept for the
+   * surfaces that literally are the case (the bezel plate, the switches), for
+   * a key's own legend, and for the machine speaking from outside the fiction:
+   * R-43's boundary warning, the map fault, the scale bar.
+   *
+   * That last group is the reason this is worth the move. R-43's warning is
+   * told apart from game content by **colour and typeface**, and the typeface
+   * half only carries if the case face appears nowhere else on the tube. It
+   * used to appear on every label on both views, which is most of the text on
+   * screen.
+   *
+   * Three custom properties rather than nine copies, because the recipe was
+   * already identical in all nine and a label that is one size in the master
+   * and another in the player is two machines.
+   *
+   * There is deliberately no `font-weight`. `VT323` ships one weight, so 600
+   * asks the browser to synthesise a bold by smearing a bitmap. Tracking drops
+   * to a hair for the neighbouring reason — §9's grid is a character cell and
+   * `letter-spacing` is what pushes glyphs off it — and the size goes up
+   * because `VT323` sets much smaller than Barlow Condensed at the same value.
+   */
+  --label-font: var(--screen-font);
+  --label-size: 0.92rem;
+  --label-tracking: 0.02em;
+
+  /**
+   * The character cell. VT323 is a fixed-pitch face, so one `ch` is one column
+   * and `--cell-y` is one row; §9's grid is expressed in these and never in
+   * pixels, or the grid stops being a grid the moment the text scales.
+   */
+  --screen-size: 1.25rem;
+  --cell-y: 1.15;
+
+  /**
+   * 44 px, and it is a requirement rather than a nicety (§9). Players use this
+   * one-handed, moving, at night. Every interactive control is at least this
+   * tall whatever the text inside it measures.
+   */
+  --touch: 44px;
+
+  /**
+   * What floats over the map. One token, because every overlay in both views has
+   * to make the same trade — the map has to stay readable underneath, and the
+   * text on top has to stay readable over a map. Tuned here rather than per
+   * component, or they drift and the screen stops looking like one machine.
+   *
+   * **Not `backdrop-filter`.** It would let these go much more transparent while
+   * staying legible, and it would composite the region of the WebGL canvas
+   * behind them on every frame the camera moves — which is the same objection
+   * that keeps `filter` out of the effect layer, applied to a smaller rectangle.
+   */
+  /**
+   * **The ink, as three bare numbers**, so a component that needs a weight of
+   * its own can write `rgb(var(--overlay-ink) / 0.94)` instead of a literal.
+   *
+   * That is not a convenience. Daylight mode swaps the ground and the ink, and
+   * a hard-coded `rgb(20 15 10 / …)` does not swap with it — it stays a dark
+   * plate under text that has gone dark, which is the player's bar, the map's
+   * callsigns and the master's footer all invisible at once. The literal is
+   * indistinguishable from the token until somebody stands in the sun.
+   */
+  --overlay-ink: 20 15 10;
+  --overlay: rgb(var(--overlay-ink) / 0.88);
+  --overlay-light: rgb(var(--overlay-ink) / 0.78);
+
+  /**
+   * How far a **reading** has to stay from the physical edge of the screen
+   * (R-68b).
+   *
+   * Two things eat that edge and only one of them is reported. `env()` gives the
+   * display cutout; **nothing gives the corner radius**, and a phone's corners
+   * round off a good ten pixels on each axis. A Pixel 9a in `fullscreen` clipped
+   * the scale bar, the callsign and half of the VIGILIA switch, all four of them
+   * in corners, while `env(safe-area-inset-top)` read zero.
+   *
+   * So: whichever is larger, what the device admits to or what a corner takes.
+   * `--edge-safe` is the second number and is deliberately one number — it is a
+   * guess about hardware and the only honest way to hold a guess is somewhere it
+   * can be changed once.
+   *
+   * **Only in `fullscreen`, and only on a touch screen** (R-68d). Anywhere else
+   * the browser's own furniture or the system bars already hold the app off the
+   * corners; on a screen with square corners there is no radius to clear at all,
+   * and `env()` cannot tell that apart from a cutout that misses. See the rules
+   * that set this, further down.
+   *
+   * These belong to what is **read**, never to the case: the map goes to the
+   * physical edge and stays there. A road under a camera hole loses nothing, and
+   * reserving the room on the bezel — which is what this used to do — spends a
+   * band of screen to protect texture.
+   */
+  --edge-safe: 0px;
+  --safe-top: max(env(safe-area-inset-top, 0px), var(--edge-safe));
+  --safe-right: max(env(safe-area-inset-right, 0px), var(--edge-safe));
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), var(--edge-safe));
+  --safe-left: max(env(safe-area-inset-left, 0px), var(--edge-safe));
+
+  /**
+   * A **reading** surface, as opposed to the two above.
+   *
+   * They float over the map and the map underneath is worth something: a
+   * distance is about ground you can see. A panel is the opposite — it is a
+   * list, a form or a log, and what the map behind it contributes is a dot
+   * showing through a callsign and R-12's dashed circle drawn across a row. It
+   * cost legibility and bought nothing, so this one is effectively opaque and
+   * keeps only enough transparency to say it is a sheet over a machine rather
+   * than a new screen.
+   */
+  --panel: rgb(var(--overlay-ink) / 0.985);
+
+  /**
+   * The effect layer's strength, as three numbers so high-contrast mode can take
+   * them to zero in one place instead of overriding a dozen rules.
+   */
+  --scanline-opacity: 0.22;
+  --bloom-radius: 6px;
+  --vignette-opacity: 0.55;
+  --flicker-depth: 0.03;
+
+  /**
+   * The two moving artefacts, as one number for the same reason as the rest: a
+   * high-contrast reader and a reduced-motion reader both want them gone, and
+   * neither should require finding every rule that draws one.
+   *
+   * The master's tube gets a sweep — the slow band a CRT's refresh leaves when
+   * a camera or an eye is out of step with it — and the player's map gets a
+   * ring leaving their own position every few seconds. Both are `transform` and
+   * `opacity` on elements that own nothing, which is what keeps them off the
+   * map's back: §9's effect layer may not use `filter`, because a filter on any
+   * ancestor forces a full-screen composite of the WebGL canvas on every one of
+   * R-48's per-frame camera writes.
+   */
+  --sweep-opacity: 0.5;
+  --sweep-period: 7s;
+  --ping-period: 4.5s;
+
+  /**
+   * The pointers, drawn rather than fetched.
+   *
+   * A cursor is the one piece of chrome the operating system supplies, and it
+   * is the one piece §9 has no say over — a modern arrow on a 1977 terminal is
+   * the same tell as a native select. These are SVG data URIs, so they cost no
+   * request and survive R-52's offline case, where a `.png` next to the bundle
+   * would be one more thing the service worker has to have cached.
+   *
+   * Every one ends in a keyword fallback. SVG cursors are not universal —
+   * Safari has been unreliable about them for years — and a missing cursor
+   * image with no fallback is **no cursor at all**, which is worse than a
+   * modern one.
+   *
+   * Phosphor fill with a hard `--screen` outline, so they stay legible over
+   * amber roads and over the beige case alike. Numbers after the URL are the
+   * hotspot in pixels: the arrow points from its tip, the crosshair and the
+   * move both act from their centre.
+   */
+  --cursor-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M3 2 L3 18 L7 14 L10 21 L13 20 L10 13 L16 13 Z' fill='%23ffb000' stroke='%23140f0a' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")
+    3 2;
+  --cursor-move: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='%23140f0a' stroke-width='4'%3E%3Cpath d='M14 3 L14 25 M3 14 L25 14 M14 3 L10 7 M14 3 L18 7 M14 25 L10 21 M14 25 L18 21 M3 14 L7 10 M3 14 L7 18 M25 14 L21 10 M25 14 L21 18'/%3E%3C/g%3E%3Cg fill='none' stroke='%23ffb000' stroke-width='2'%3E%3Cpath d='M14 3 L14 25 M3 14 L25 14 M14 3 L10 7 M14 3 L18 7 M14 25 L10 21 M14 25 L18 21 M3 14 L7 10 M3 14 L7 18 M25 14 L21 10 M25 14 L21 18'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  --cursor-cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='%23140f0a' stroke-width='4'%3E%3Cpath d='M14 1 L14 9 M14 19 L14 27 M1 14 L9 14 M19 14 L27 14'/%3E%3Ccircle cx='14' cy='14' r='5'/%3E%3C/g%3E%3Cg fill='none' stroke='%23ffb000' stroke-width='2'%3E%3Cpath d='M14 1 L14 9 M14 19 L14 27 M1 14 L9 14 M19 14 L27 14'/%3E%3Ccircle cx='14' cy='14' r='5'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  /**
+   * The dragging hand, and **only** while dragging.
+   *
+   * There was an open hand resting over the map too, and it was the same
+   * mistake the acting cursor made: a promise about every pixel. The map is
+   * draggable everywhere, so an open hand everywhere says nothing. This one
+   * appears on `:active` — when a hand is actually holding something.
+   *
+   * Drawn from rectangles rather than curves. A smooth hand is a 1995 cursor;
+   * four bars and a palm is the same gesture at the resolution the rest of this
+   * machine is drawn at.
+   */
+  --cursor-grabbing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='%23ffb000' stroke='%23140f0a' stroke-width='1.5' stroke-linejoin='round'%3E%3Crect x='8' y='10' width='3' height='5'/%3E%3Crect x='11.5' y='9' width='3' height='6'/%3E%3Crect x='15' y='9' width='3' height='6'/%3E%3Crect x='18.5' y='10' width='3' height='5'/%3E%3Crect x='7' y='13' width='14.5' height='9'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  /**
+   * The text cursor. A field is the one place the machine is waiting for *you*,
+   * and the system I-beam is the tell that gives that away fastest — it is the
+   * cursor of a 2010s form, sitting on a screen that is claiming to be 1977.
+   *
+   * Drawn with serifs and a dark outline for the same reason as the rest: it has
+   * to stay visible over phosphor text as well as over an empty field.
+   */
+  --cursor-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cg fill='none' stroke='%23140f0a' stroke-width='4'%3E%3Cpath d='M12 4 L12 20 M8 4 L16 4 M8 20 L16 20'/%3E%3C/g%3E%3Cg fill='none' stroke='%23ffb000' stroke-width='2'%3E%3Cpath d='M12 4 L12 20 M8 4 L16 4 M8 20 L16 20'/%3E%3C/g%3E%3C/svg%3E") 12 12;
+
+  --cursor-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M3 2 L3 18 L7 14 L10 21 L13 20 L10 13 L16 13 Z' fill='%23ffd899' stroke='%23140f0a' stroke-width='1.5' stroke-linejoin='round'/%3E%3Crect x='17' y='3' width='4' height='10' fill='%23ffd899' stroke='%23140f0a' stroke-width='1.5'/%3E%3C/svg%3E")
+    3 2;
+}
+
+/**
+ * R-24's mode, told by the colour of the tube.
+ *
+ * §9 says amber and not green, and means it — green-on-black reads as Matrix.
+ * This is the one thing allowed to move it, and only while a **master** holds
+ * `AUTHORITATIVE`: that mode is privileged, it shows eliminations and drop
+ * points, and R-25 takes it away again after ten minutes of not acting. The
+ * master has to know which one they are reading from the corner of their eye
+ * and from whichever panel is open — the bar's countdown only says so to
+ * someone already looking at the bar.
+ *
+ * Set on the root by `MasterView`, the same way `display.svelte.ts` sets
+ * `data-contrast` below, and for the same reason: the case, the effect layer
+ * and every panel have to turn together, and a class further down would leave
+ * a beige bezel around a green tube, which is two machines.
+ *
+ * **The ramp is the amber one with its hue rotated and its luminance held**,
+ * which is the whole of why these four values look arbitrary and are not.
+ * Relative luminance is what sets contrast against `--screen`, and green at the
+ * same HSL lightness as amber is about 37% brighter: a straight hue rotation
+ * lands on `#00ff00`, glares under R-48's bloom and takes §9's legibility
+ * obligation with it. Solved per token instead, so every ratio against
+ * `--screen` is unchanged — 10,40 · 5,00 · 2,27 · 14,09, the same four numbers
+ * the amber ramp already had.
+ *
+ * `--alarm` deliberately does not move: it is R-43's one colour and has to stay
+ * the one colour. What changes is that it now sits on green, which is the worst
+ * pairing for a red-green colour blindness. That is survivable only because
+ * nothing here tells an alarm by hue alone — §9.4's inverse video, the case
+ * face and a hard border carry it too — and because R-43's own warning is a
+ * player surface, and a player's tube never turns green.
+ */
+:root[data-view-mode='AUTHORITATIVE'] {
+  --phosphor: #00de37;
+  --phosphor-dim: #08982c;
+  --phosphor-deep: #055b1a;
+  --phosphor-bright: #25ff5b;
+
+  /**
+   * The pointers, which are SVG in a `data:` URI — so the colour is inside the
+   * image and no token reaches it. Same reason the map needs its own palette,
+   * and the same failure if it is skipped: an amber arrow over a green screen.
+   *
+   * Only the two phosphor values move. `%23140f0a` is the dark outline that
+   * makes a pointer readable over pale roads and a bright dot alike, and it is
+   * `--screen`, which does not move for this mode either.
+   *
+   * Copied whole rather than composed, because a custom property cannot be
+   * interpolated into a `url()` — CSS has no way to build one out of parts. The
+   * hotspots ride along with the copy, which is the point: they are the numbers
+   * that would rot silently if these were retyped.
+   */
+  --cursor-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M3 2 L3 18 L7 14 L10 21 L13 20 L10 13 L16 13 Z' fill='%2300de37' stroke='%23140f0a' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")
+    3 2;
+  --cursor-move: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='%23140f0a' stroke-width='4'%3E%3Cpath d='M14 3 L14 25 M3 14 L25 14 M14 3 L10 7 M14 3 L18 7 M14 25 L10 21 M14 25 L18 21 M3 14 L7 10 M3 14 L7 18 M25 14 L21 10 M25 14 L21 18'/%3E%3C/g%3E%3Cg fill='none' stroke='%2300de37' stroke-width='2'%3E%3Cpath d='M14 3 L14 25 M3 14 L25 14 M14 3 L10 7 M14 3 L18 7 M14 25 L10 21 M14 25 L18 21 M3 14 L7 10 M3 14 L7 18 M25 14 L21 10 M25 14 L21 18'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  --cursor-cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='%23140f0a' stroke-width='4'%3E%3Cpath d='M14 1 L14 9 M14 19 L14 27 M1 14 L9 14 M19 14 L27 14'/%3E%3Ccircle cx='14' cy='14' r='5'/%3E%3C/g%3E%3Cg fill='none' stroke='%2300de37' stroke-width='2'%3E%3Cpath d='M14 1 L14 9 M14 19 L14 27 M1 14 L9 14 M19 14 L27 14'/%3E%3Ccircle cx='14' cy='14' r='5'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  --cursor-grabbing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='%2300de37' stroke='%23140f0a' stroke-width='1.5' stroke-linejoin='round'%3E%3Crect x='8' y='10' width='3' height='5'/%3E%3Crect x='11.5' y='9' width='3' height='6'/%3E%3Crect x='15' y='9' width='3' height='6'/%3E%3Crect x='18.5' y='10' width='3' height='5'/%3E%3Crect x='7' y='13' width='14.5' height='9'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  --cursor-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cg fill='none' stroke='%23140f0a' stroke-width='4'%3E%3Cpath d='M12 4 L12 20 M8 4 L16 4 M8 20 L16 20'/%3E%3C/g%3E%3Cg fill='none' stroke='%2300de37' stroke-width='2'%3E%3Cpath d='M12 4 L12 20 M8 4 L16 4 M8 20 L16 20'/%3E%3C/g%3E%3C/svg%3E") 12 12;
+  --cursor-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M3 2 L3 18 L7 14 L10 21 L13 20 L10 13 L16 13 Z' fill='%2325ff5b' stroke='%23140f0a' stroke-width='1.5' stroke-linejoin='round'/%3E%3Crect x='17' y='3' width='4' height='10' fill='%2325ff5b' stroke='%23140f0a' stroke-width='1.5'/%3E%3C/svg%3E")
+    3 2;
+}
+
+/**
+ * High-contrast mode (§9, mandatory).
+ *
+ * Set on the root element by `display.svelte.ts`. It does not recolour anything
+ * — the palette is already monochrome and recolouring would lose the machine —
+ * it removes the three effects that cost legibility and brightens the phosphor
+ * to its top value. `--flicker-depth: 0` is what actually stops the animation,
+ * since the keyframes interpolate against it.
+ */
+:root[data-contrast='high'] {
+  /* Opaque. Transparency is the first thing to go when the point is reading a
+     distance off a screen at night — the map underneath is worth less than the
+     number on top of it. */
+  --overlay: rgb(var(--overlay-ink) / 1);
+  --overlay-light: rgb(var(--overlay-ink) / 0.96);
+  --panel: rgb(var(--overlay-ink) / 1);
+  --scanline-opacity: 0;
+  --bloom-radius: 0;
+  --vignette-opacity: 0;
+  --flicker-depth: 0;
+  --sweep-opacity: 0;
+  --phosphor: var(--phosphor-bright);
+  --phosphor-dim: #ffb000;
+  --phosphor-deep: #b3760a;
+}
+
+/**
+ * High contrast **while R-24's mode is open**, which is the one combination the
+ * two blocks above cannot settle between them.
+ *
+ * `high` shifts the ramp up a step — each token takes the value of the one
+ * brighter than it — and it does that by writing the amber literals, because
+ * until now amber was the only ramp there was. `--phosphor` survives the green
+ * mode by luck: `var(--phosphor-bright)` is resolved against whatever won on
+ * the element, which is the green one. The other two do not, so a master
+ * turning contrast up in `AUTHORITATIVE` got green readings with amber labels,
+ * borders and underlines — every token-driven surface disagreeing with the one
+ * beside it.
+ *
+ * It cannot be fixed inside that block with `var()`. `--phosphor-dim:
+ * var(--phosphor)` resolves `--phosphor` to the value set in the *same* rule,
+ * which is `--phosphor-bright` — that collapses three steps of the ramp into
+ * one rather than shifting them.
+ *
+ * So the pair is spelled out, and the selector carries both attributes: at
+ * `0,3,0` it beats either block alone whatever order they end up in, which
+ * matters because `high` currently sits after the green one and the fix must
+ * not depend on that staying true.
+ *
+ * Daylight is deliberately not here. It replaces the ramp rather than shifting
+ * it, and it beats the green mode on purpose — reading the screen outdoors
+ * outranks saying which mode is open.
+ */
+:root[data-view-mode='AUTHORITATIVE'][data-contrast='high'] {
+  --phosphor-dim: #00de37;
+  --phosphor-deep: #08982c;
+}
+
+/**
+ * Daylight (not §9, and §9 is why it exists).
+ *
+ * The complaint this answers is a street at two in the afternoon, and raising
+ * the contrast does nothing for it: a screen that is mostly black cannot
+ * compete with the sun, because what a phone can put out is *light* and in an
+ * amber-on-black palette almost no pixel is producing any. So the ground and
+ * the ink swap places and the backlight does the work.
+ *
+ * **Brightness inverts with them, and the token names do not.** `--phosphor-
+ * bright` is the *most prominent* value, which on a light ground is the darkest
+ * one — so the four phosphors run dark-to-light here where they run light-to-
+ * dark above. Every rule in the app that reaches for `--phosphor-bright` to
+ * emphasise something keeps working, including §9.4's inverse video, which
+ * comes out as pale text on a dark plate and is still the loudest thing on the
+ * screen.
+ *
+ * The effects go to zero for the same reason as high contrast, plus one more:
+ * scanlines over a light ground are not a tube, they are a fault.
+ *
+ * `--alarm` is untouched. R-43 owns the only colour on any screen and it still
+ * reads as the one thing that is not game content.
+ */
+:root[data-contrast='daylight'] {
+  --screen: #e7dcc6;
+  --phosphor: #2a1e0a;
+  --phosphor-bright: #120c04;
+  --phosphor-dim: #6a5834;
+  --phosphor-deep: #a08d68;
+
+  /* The one line that inverts every overlay in the app, including the ones a
+     component mixes for itself. */
+  --overlay-ink: 231 220 198;
+  --overlay: rgb(var(--overlay-ink) / 1);
+  --overlay-light: rgb(var(--overlay-ink) / 0.96);
+  --panel: rgb(var(--overlay-ink) / 1);
+
+  --scanline-opacity: 0;
+  --bloom-radius: 0;
+  --vignette-opacity: 0;
+  --flicker-depth: 0;
+  --sweep-opacity: 0;
+
+  /* The cursors are drawn in `#ffb000` with a `#140f0a` outline, which is a
+     bright mark with a dark edge — exactly backwards over a pale screen. These
+     are the same six shapes with the two swapped.
+
+     It was three for a long time, and the three left out were the ones you only
+     see with a pointer down or over something clickable: `move`, `grabbing` and
+     `hand` stayed a bright amber mark on a pale ground, which is the one
+     combination this block exists to prevent. Every cursor the dark palette
+     defines needs a partner here, or it is simply missed rather than wrong.
+
+     `hand` is the exception worth naming: it is `#ffd899` in the dark, a step
+     brighter than `arrow`, because it means *this is clickable*. On a pale
+     ground prominence is ink and `arrow` already sits at the darkest value the
+     palette has, so the step collapses and the two share it. The extra bar in
+     the shape is what still tells them apart. */
+  --cursor-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M3 2 L3 18 L7 14 L10 21 L13 20 L10 13 L16 13 Z' fill='%23120c04' stroke='%23e7dcc6' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")
+    3 2;
+  --cursor-text: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cg fill='none' stroke='%23e7dcc6' stroke-width='4'%3E%3Cpath d='M12 4 L12 20 M8 4 L16 4 M8 20 L16 20'/%3E%3C/g%3E%3Cg fill='none' stroke='%23120c04' stroke-width='2'%3E%3Cpath d='M12 4 L12 20 M8 4 L16 4 M8 20 L16 20'/%3E%3C/g%3E%3C/svg%3E")
+    12 12;
+  --cursor-cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='%23e7dcc6' stroke-width='4'%3E%3Cpath d='M14 1 L14 9 M14 19 L14 27 M1 14 L9 14 M19 14 L27 14'/%3E%3Ccircle cx='14' cy='14' r='5'/%3E%3C/g%3E%3Cg fill='none' stroke='%23120c04' stroke-width='2'%3E%3Cpath d='M14 1 L14 9 M14 19 L14 27 M1 14 L9 14 M19 14 L27 14'/%3E%3Ccircle cx='14' cy='14' r='5'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  --cursor-move: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='%23e7dcc6' stroke-width='4'%3E%3Cpath d='M14 3 L14 25 M3 14 L25 14 M14 3 L10 7 M14 3 L18 7 M14 25 L10 21 M14 25 L18 21 M3 14 L7 10 M3 14 L7 18 M25 14 L21 10 M25 14 L21 18'/%3E%3C/g%3E%3Cg fill='none' stroke='%23120c04' stroke-width='2'%3E%3Cpath d='M14 3 L14 25 M3 14 L25 14 M14 3 L10 7 M14 3 L18 7 M14 25 L10 21 M14 25 L18 21 M3 14 L7 10 M3 14 L7 18 M25 14 L21 10 M25 14 L21 18'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  --cursor-grabbing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='%23120c04' stroke='%23e7dcc6' stroke-width='1.5' stroke-linejoin='round'%3E%3Crect x='8' y='10' width='3' height='5'/%3E%3Crect x='11.5' y='9' width='3' height='6'/%3E%3Crect x='15' y='9' width='3' height='6'/%3E%3Crect x='18.5' y='10' width='3' height='5'/%3E%3Crect x='7' y='13' width='14.5' height='9'/%3E%3C/g%3E%3C/svg%3E")
+    14 14;
+  --cursor-hand: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M3 2 L3 18 L7 14 L10 21 L13 20 L10 13 L16 13 Z' fill='%23120c04' stroke='%23e7dcc6' stroke-width='1.5' stroke-linejoin='round'/%3E%3Crect x='17' y='3' width='4' height='10' fill='%23120c04' stroke='%23e7dcc6' stroke-width='1.5'/%3E%3C/svg%3E")
+    3 2;
+}
+
+/**
+ * The glass goes quiet over text (§9: the effect must never compromise
+ * legibility).
+ *
+ * Set by `display.svelte.ts` while a panel or a card is open. The vignette is
+ * the one that matters — it is a radial, so it is darkest at the screen's edge,
+ * which is exactly where the personnel rail lives; a roster at the left margin
+ * was being read through the strongest part of the effect, and `#ffb000` under
+ * it is olive rather than phosphor.
+ *
+ * Quiet, not off. A panel that erased the machine would read as a second
+ * application rather than a sheet over this one, and §9.6's whole point is that
+ * there is one machine.
+ */
+:root[data-reading] {
+  --vignette-opacity: 0.18;
+  --scanline-opacity: 0.08;
+  --sweep-opacity: 0.18;
+}
+
+/**
+ * §9's other mandatory obligation. Honoured here as well as in the component
+ * that animates, so a setting nobody wired up cannot leave a screen flickering
+ * at someone who asked it not to.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --flicker-depth: 0;
+    /* The sweep and the ping are motion before they are decoration, so they go
+       to nothing here rather than merely slowing down. */
+    --sweep-opacity: 0;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/**
+ * R-68b, and **only on a touch screen** (R-68d).
+ *
+ * The allowance exists because the app is against the glass, which is only true
+ * in `fullscreen` — `standalone` keeps the system bars, and a browser tab keeps
+ * the browser, and both of those already sit between a corner and a reading.
+ *
+ * The second half is the one that cost a bug report. The constant is a guess
+ * about a **phone's corner radius**, and `env()` cannot be asked whether there
+ * is one to clear: a laptop with square corners reports zero on all four sides,
+ * which is indistinguishable from a phone whose cutout happens to miss the app.
+ * `max(0px, 14px)` is 14px either way, so a rectangular screen spent the
+ * allowance on a hazard it does not have — and the chin, which takes the inset
+ * on three sides and has a hard `padding-top: 0`, put all of it underneath the
+ * legend and rode 7 px off centre.
+ *
+ * `pointer: coarse` is the only hardware signal the platform offers here. It is
+ * a proxy and it is wrong about a touchscreen laptop, which is the direction to
+ * be wrong in: that machine reserves room it does not need, where the previous
+ * rule clipped a switch on the device that does.
+ */
+@media (pointer: coarse) {
+  @media all and (display-mode: fullscreen) {
+    :root {
+      --edge-safe: 14px;
+    }
+  }
+
+  /* The same allowance, from the Fullscreen API rather than from the manifest
+     (R-68c). `display.svelte.ts` writes this off `fullscreenchange`, which is
+     the half of the question this app can answer for itself — the media feature
+     above is specified against the *web app's* display mode, and whether an
+     element fullscreened through the API flips it has varied between browsers. */
+  :root[data-fullscreen] {
+    --edge-safe: 14px;
+  }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  cursor: var(--cursor-arrow), default;
+  background: var(--screen);
+  color: var(--phosphor);
+  /* The case surrounds the tube, so what is behind everything is plastic, not
+     phosphor. `background` above is the tube; this is what shows past it. */
+  background-color: #0b0907;
+}
+
+body {
+  font-family: var(--screen-font);
+  font-size: var(--screen-size);
+  line-height: var(--cell-y);
+  /* Android flashes a translucent blue rectangle over anything tappable. It is
+     the same blue `::selection` is dealt with below, and the same objection. */
+  -webkit-tap-highlight-color: transparent;
+  /* VT323 is a bitmap-derived face. Antialiasing softens the cell edges that
+     make it read as a tube, so it is left alone deliberately. */
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  text-rendering: optimizeSpeed;
+}
+
+/**
+ * Screen furniture. Headings are not bigger — a terminal has one cell size —
+ * they are inverse video, which is how a monochrome machine emphasised (§9.4).
+ */
+h1,
+h2,
+h3 {
+  font-size: inherit;
+  font-weight: normal;
+  margin: 0;
+  letter-spacing: 0.08em;
+}
+
+a {
+  color: var(--phosphor-bright);
+}
+
+/**
+ * Controls are drawn, not native. A browser default button is the single
+ * loudest tell that this is a web page, and §9 is explicit that the interface
+ * must not read as a modern app with a filter over it.
+ */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: var(--phosphor);
+  background: transparent;
+  border: 1px solid var(--phosphor-dim);
+  border-radius: 0;
+  padding: 0 0.6ch;
+  min-height: var(--touch);
+  appearance: none;
+}
+
+/**
+ * Brighter than the arrow rather than a different shape: this interface says
+ * "you can act here" in brightness everywhere else (§9.7's second channel), and
+ * a pointing hand is a hyperlink's gesture from a decade this machine predates.
+ */
+button,
+a,
+[role='option'],
+summary {
+  cursor: var(--cursor-hand), pointer;
+}
+
+button {
+  min-width: var(--touch);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/**
+ * **A box is pressed; a rule is written on.**
+ *
+ * Every control above shares one reset, and that left a button and an empty
+ * field as the same rectangle: same border, same ground, same height, telling
+ * them apart by whether there happened to be a word inside. In a form with
+ * both — the marker window, the team panel, the geometry section — that is a
+ * master reading the layout to work out which of two things a box is.
+ *
+ * The split is the one the machine already makes and the login screen already
+ * uses. A terminal's field is a **rule under the place the text goes**, with a
+ * caret sitting on it; a panel's button is a **plate you push**. So the box
+ * stays with the thing that is pressed and the field keeps only its baseline.
+ *
+ * The side borders are `transparent` rather than removed, so the box still
+ * occupies the same width and a form does not reflow by two pixels per field.
+ *
+ * Same selector as the I-beam rule below, and deliberately: a range is dragged
+ * and a checkbox is pressed, so both keep the box that says so.
+ */
+input:not([type='range']):not([type='button']):not([type='submit']):not([type='checkbox']):not(
+    [type='radio']
+  ),
+textarea {
+  border-color: transparent;
+  border-bottom-color: var(--phosphor-dim);
+}
+
+/**
+ * The rule brightens where the caret is. Emphasis by brightness (§9.7's second
+ * channel) rather than by a box appearing, which would be the field turning
+ * into a button at the moment it is used.
+ */
+input:not([type='range']):not([type='button']):not([type='submit']):not([type='checkbox']):not(
+    [type='radio']
+  ):focus,
+textarea:focus {
+  border-bottom-color: var(--phosphor-bright);
+}
+
+/**
+ * A field is where the machine waits for **you**, and the system I-beam is the
+ * tell that gives that away fastest: it is a 2010s form's cursor on a screen
+ * claiming to be 1977. The field on the login screen has no border and no box,
+ * so the cursor is most of what says it is a field at all.
+ *
+ * Every text-entry type and nothing else. The exclusions are not defensive — a
+ * range slider is dragged, a checkbox is pressed, and an I-beam over either is
+ * a promise about a gesture that does not exist there.
+ */
+input:not(:disabled):not([type='range']):not([type='button']):not([type='submit']):not(
+    [type='checkbox']
+  ):not([type='radio']),
+textarea:not(:disabled) {
+  cursor: var(--cursor-text), text;
+}
+
+/**
+ * The one element that resets an inherited cursor without being asked.
+ *
+ * `cursor` inherits, so `body`'s arrow reaches everything — except that
+ * Firefox's `forms.css` carries `label { cursor: default }`, which puts the
+ * system arrow back over every label in the app. It shows up first on the login
+ * prompt, where the label text *is* the prompt and is the thing a hand is over
+ * while reading it.
+ */
+label {
+  cursor: var(--cursor-arrow), default;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  cursor: var(--cursor-arrow), default;
+}
+
+button:hover:not(:disabled),
+button:focus-visible {
+  /* Inverse video, not a colour change (§9.4). */
+  background: var(--phosphor);
+  color: var(--screen);
+}
+
+button:disabled {
+  color: var(--phosphor-deep);
+  border-color: var(--phosphor-deep);
+}
+
+input:disabled,
+select:disabled {
+  color: var(--phosphor-deep);
+  border-color: var(--phosphor-deep);
+}
+
+/**
+ * There is no `<select>` left in the app, and the reset above is all one gets.
+ *
+ * Three rounds went into styling one: `appearance: none` for the closed box, a
+ * chevron drawn from two gradients because that took the native arrow with it,
+ * then `appearance: base-select` and `::picker(select)` to reach the open list
+ * at all — and the list still painted over the bezel, because **a popover lives
+ * in the top layer and no ancestor can clip it.** That is not a gap in the CSS;
+ * it is what the top layer is for.
+ *
+ * `chrome/Select.svelte` is the replacement: an ordinary absolutely-positioned
+ * list inside the panel that owns it, so the panel clips it and the panel
+ * scrolls it. The rules that used to be here went with the element they styled
+ * rather than staying as a floor for a control nothing renders.
+ */
+
+input::placeholder {
+  color: var(--phosphor-deep);
+}
+
+/**
+ * Chrome paints an autofilled field with its own pale background and blue-grey
+ * text, and no `background` declaration beats it — the only lever is an inset
+ * shadow big enough to cover the field, plus `-webkit-text-fill-color` for the
+ * text. Without this the one password field in the app lights up white the
+ * moment a password manager touches it.
+ */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--phosphor);
+  -webkit-box-shadow: 0 0 0 100px var(--screen) inset;
+  caret-color: var(--phosphor);
+}
+
+/**
+ * The replay scrubber (R-54) and R-32's hold clock. Both ship as native
+ * widgets with rounded tracks and a glossy thumb, which is the loudest modern
+ * tell left in the app after the select arrow.
+ *
+ * The pseudo-elements cannot be grouped across engines: a selector list
+ * containing one the browser does not know is dropped whole, so the WebKit and
+ * Gecko rules are written twice on purpose. That is not duplication to tidy up.
+ */
+input[type='range'] {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: var(--cursor-hand), pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 0.4lh;
+  background: var(--screen);
+  border: 1px solid var(--phosphor-deep);
+}
+input[type='range']::-moz-range-track {
+  height: 0.4lh;
+  background: var(--screen);
+  border: 1px solid var(--phosphor-deep);
+}
+
+/* A block, not a knob: the cursor on a tape counter rather than a slider. The
+   negative margin centres it on the track, which `appearance: none` stops the
+   browser doing. */
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.2ch;
+  height: 1lh;
+  margin-top: calc((0.4lh - 1lh) / 2);
+  background: var(--phosphor);
+  border: none;
+  border-radius: 0;
+}
+input[type='range']::-moz-range-thumb {
+  width: 1.2ch;
+  height: 1lh;
+  background: var(--phosphor);
+  border: none;
+  border-radius: 0;
+}
+
+progress {
+  appearance: none;
+  height: 1lh;
+  background: var(--screen);
+  border: 1px solid var(--phosphor-dim);
+}
+progress::-webkit-progress-bar {
+  background: var(--screen);
+}
+progress::-webkit-progress-value {
+  background: var(--phosphor);
+}
+progress::-moz-progress-bar {
+  background: var(--phosphor);
+}
+
+/**
+ * The scrollbars. There is one scrolling surface per view — a panel the user
+ * opened — and the requirement is that the page itself never scrolls, so a bar
+ * that announces itself is announcing the wrong thing.
+ *
+ * Both syntaxes, and they are not redundant: `scrollbar-width`/`scrollbar-color`
+ * are the standard and cover Firefox and Chrome 121+, while Safari has only the
+ * `::-webkit-` pseudo-elements. Written standard-first so the modern engines
+ * take that branch.
+ *
+ * On `*` rather than on `html`, because the two do not agree: `scrollbar-color`
+ * inherits and `scrollbar-width` does not, so setting them on the root would
+ * leave every nested scroller at the default width.
+ *
+ * The standard properties are **behind `@supports`, and that is what squares
+ * the thumb.** They are not additive: where an engine honours them it paints
+ * its own scrollbar and ignores the `::-webkit-` rules below entirely, and the
+ * standard syntax has no radius — so on Chrome the `border-radius: 0` was dead
+ * code and the thumb came back with the rounded ends of an OS widget, which is
+ * the one shape §9's case rules out. Asking for the pseudo-element first hands
+ * Chrome and Safari the block below and leaves Firefox, which has no
+ * `::-webkit-scrollbar`, the only styling it can take.
+ */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--phosphor-deep) transparent;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 0.8ch;
+  height: 0.8ch;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--phosphor-deep);
+  /* Square, like everything else on the character grid. Explicit because the
+     default is rounded and this is the rule the `@supports` above exists to
+     let through. */
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--phosphor-dim);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/**
+ * Selection, in inverse video like every other emphasis in this interface
+ * (§9.4). The browser default is a blue the palette does not contain, which is
+ * the same objection that took the native controls apart above.
+ *
+ * `text-shadow: none` matters: the bloom on `.screen` spreads a glyph into its
+ * own selection plate and the selected run turns to mush.
+ */
+::selection {
+  background: var(--phosphor);
+  color: var(--screen);
+  text-shadow: none;
+}
+
+/**
+ * Focus has to survive the effect layer: a ring in a colour the tube does not
+ * have is the one place where breaking the palette is correct, because a player
+ * tabbing at night needs to see where they are.
+ */
+:focus-visible {
+  outline: 2px solid var(--phosphor-bright);
+  outline-offset: 1px;
+}
+
+/**
+ * Tables are the panel's main instrument, and box-drawing frames (§9.2) are
+ * drawn with borders rather than with `─ │ ┌` characters. Glyph frames cannot
+ * survive a cell that reflows, and a table whose frame is one column out reads
+ * as a broken machine rather than as a period one.
+ */
+table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+/**
+ * A table is its own scrollport, and the surface holding it is not.
+ *
+ * `nowrap` below is deliberate — a coordinate pair, a duration or an age that
+ * wrapped stops being one reading — so a five-column table is wider than a
+ * phone whatever is done to it. That is fine and it is what scrolling is for.
+ * What is not fine is the *panel* scrolling with it: the headings, the forms
+ * and the hints all sliding sideways so somebody can read one cell is how a
+ * panel stops being usable one-handed, and it is the one interaction §9's
+ * whole argument is about.
+ *
+ * The wrapper has to be a real element. `overflow-x` on the table itself needs
+ * `display: block`, which throws away the table box and takes the column sizing
+ * with it.
+ */
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+th,
+td {
+  border: 1px solid var(--phosphor-deep);
+  padding: 0 0.6ch;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  color: var(--phosphor-dim);
+  font-weight: normal;
+  letter-spacing: 0.08em;
+}
+
+/**
+ * What is furniture rather than a reading, and therefore not worth selecting.
+ *
+ * Selection stays on everywhere it is a way of getting at something: a
+ * coordinate pair, an invite path, a line of the event log are all things a
+ * master copies out. What is turned off here is the text that only ever gets
+ * highlighted by accident — dragging across the map catches the callsigns, a
+ * double tap on a button catches its label, and a long press on a phone catches
+ * whichever of the two was underneath the thumb.
+ */
+button,
+h1,
+h2,
+h3,
+th,
+.q,
+.close {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/**
+ * Q code labels (R-29). The game runs on walkies, so the status blocks are
+ * written the way a radio log is: a three-letter abbreviation, then the reading.
+ *
+ * Global rather than per component because both views print them and a label
+ * that is one size in the master and another in the player is two machines.
+ *
+ * It was `--phosphor-deep` at 0.7rem and effectively invisible — that colour is
+ * `#6b4606` on a `#140f0a` screen, which is a hairline of contrast at two
+ * thirds of the body size. The label is furniture, but furniture you cannot
+ * read is not furniture.
+ *
+ * The screen face, and the bloom that comes with it: a Q code is the tube
+ * naming its own reading, not a marking on the box. See `--label-font`.
+ */
+.q {
+  font-family: var(--label-font);
+  font-size: var(--label-size);
+  letter-spacing: var(--label-tracking);
+  color: var(--phosphor-dim);
+}
+
+/**
+ * A key's name, printed beside the function it runs (htop, btop).
+ *
+ * Inverse video, which is how this interface emphasises anything (§9.4) and
+ * also what those two use — so the strip reads as a function-key row rather
+ * than as a label with a letter stuck to it. Case lettering, because a key is
+ * a marking on hardware and not a reading off the tube — one of the few things
+ * left on the tube that keeps the case face, now that the labels took the
+ * screen one (`--label-font`).
+ *
+ * On a button that is already inverse the pair swaps back, or the hint would
+ * be phosphor on phosphor and vanish exactly when its panel is the open one.
+ */
+kbd {
+  font-family: var(--case-font);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  padding: 0 0.4ch;
+  background: var(--phosphor);
+  color: var(--screen);
+  text-shadow: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button.on kbd,
+button[aria-pressed='true'] kbd,
+button:hover:not(:disabled) kbd,
+button:focus-visible kbd {
+  background: var(--screen);
+  color: var(--phosphor);
+}
+
+button:disabled kbd {
+  background: var(--phosphor-deep);
+  color: var(--screen);
+}
+
+/**
+ * §9.7's four state marks, **drawn**.
+ *
+ * `● ◎ ◌ ✕` are the interface §9.7 specifies and none of the four is in VT323's
+ * latin subset, so lettering them handed the most load-bearing symbols in the
+ * app to whatever font the operating system happened to supply — a different
+ * advance on every machine, and a tofu box on any handset missing one.
+ *
+ * Global rather than per view, because the roster and the player's HUD draw the
+ * same mark and a mark that is one thing in one place and another elsewhere is
+ * two machines. Sized in `rem` so it holds on screen while the map zooms under
+ * it — which is why these are markers and not layers in the first place.
+ *
+ * Shape first, brightness second. That is §9.7's rule and it is an
+ * accessibility one: a reading that depends on hue is a reading a colour-blind
+ * player does not get, and neither does anybody looking at an amber tube
+ * through a scanline overlay at night.
+ *
+ * ## `.mark` is taken, and a component may not borrow the word
+ *
+ * This file is global and `.mark` is one of four class names in it. **Svelte's
+ * scoping does not protect an element from a global rule of the same name** —
+ * it narrows the component's own selector and nothing else — so any
+ * `class="mark"` anywhere in the app gets the box below, 1,4 rem square, empty,
+ * centred, with a pseudo-element circle drawn over it.
+ *
+ * Three components had borrowed it for things that are not a state mark: R-45's
+ * `~`, the select's tick, the boot banner's block art. The `~` was the one that
+ * showed — a hole between the qualifier and the number it qualifies, in every
+ * list row and HUD line that prints a rough time. The other two were surviving
+ * on accidents of layout, which is worse, because there was nothing to see.
+ */
+.mark {
+  display: inline-block;
+  position: relative;
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  vertical-align: middle;
+  /**
+   * Centred, never baselined, and that is forced rather than inherited.
+   *
+   * Both places that draw a mark align their row on the text baseline, which is
+   * right for a callsign beside a battery. An **empty** inline-block has no line
+   * box of its own, so its baseline is its bottom margin edge — it hangs its
+   * whole height above the text and sits a row too high. The shape is painted
+   * by pseudo-elements, so the box is always empty and this is always the case.
+   */
+  align-self: center;
+}
+
+.mark::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.62rem;
+  height: 0.62rem;
+  margin: -0.31rem 0 0 -0.31rem;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+/* MOVING: solid. The only filled one, because it is the only one that is a
+   position anybody should act on. */
+.mark[data-mark='moving']::before {
+  background: currentColor;
+}
+
+/* STATIONARY: a ring with its own centre — still a fix, just not moving. */
+.mark[data-mark='stationary']::before {
+  border: 1.5px solid currentColor;
+}
+.mark[data-mark='stationary']::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.22rem;
+  height: 0.22rem;
+  margin: -0.11rem 0 0 -0.11rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* NO_LINK: the ring breaks. R-11's claim is that we have lost them, and a
+   broken outline is that claim in a shape rather than in a colour. */
+.mark[data-mark='no-link']::before {
+  border: 2px dotted currentColor;
+}
+
+/* ELIMINATED: a cross, and the one mark that is not a circle at all — R-30's
+   state is categorically different from any position state. */
+.mark[data-mark='eliminated']::before {
+  width: 0.72rem;
+  height: 2px;
+  margin: -1px 0 0 -0.36rem;
+  border-radius: 0;
+  background: currentColor;
+  rotate: 45deg;
+}
+.mark[data-mark='eliminated']::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.72rem;
+  height: 2px;
+  margin: -1px 0 0 -0.36rem;
+  background: currentColor;
+  rotate: -45deg;
+}
+
+.mark.bright {
+  color: var(--phosphor-bright);
+}
+.mark.normal {
+  color: var(--phosphor);
+}
+.mark.dim {
+  color: var(--phosphor-dim);
+}
+
+/**
+ * A window's close control. `×` rather than §9.7's `✕`, and the difference is
+ * not decorative: that glyph means *this player is out* everywhere else in the
+ * app, and a close button wearing it would be the one mark on screen that says
+ * two things.
+ *
+ * The character is the whole button, so the accessible name comes from
+ * `aria-label` — §0 keeps that in the locale like every other string.
+ */
+.close {
+  font-family: var(--screen-font);
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0 0.5ch;
+  min-height: calc(var(--touch) * 0.72);
+  min-width: calc(var(--touch) * 0.72);
+}

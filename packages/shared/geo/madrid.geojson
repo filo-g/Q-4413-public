@@ -1,0 +1,314 @@
+{
+  "type": "FeatureCollection",
+  "note": "Invented geometry, not a real venue. A 1 km square over the centre of MADRID, tiled by four rectangular zones in two sectors under one district (R-70). Zone borders are exact: neighbours share the same nodes, so there is no sliver between them for a player to stand in and be visible to nobody (§4). Edit this file to describe your own ground — nothing geographic lives in code (§11). One file feeds both the renderer and server-side geometry (R-51); every feature carries featureType.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "PERIMETER",
+        "name": "Perimetro",
+        "note": "Invented, and square on purpose: the four zones below tile it exactly, sharing vertices to the digit. See README, \"Your own geometry\"."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -3.7096995,
+              40.4123008
+            ],
+            [
+              -3.6979005,
+              40.4123008
+            ],
+            [
+              -3.6979005,
+              40.4212992
+            ],
+            [
+              -3.7096995,
+              40.4212992
+            ],
+            [
+              -3.7096995,
+              40.4123008
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "INGEST_AREA",
+        "name": "Area de ingesta",
+        "note": "Perimeter plus 500 m (R-04). Players drift outside the perimeter and their pings must still be accepted while IN_PROGRESS; this is also the extent `pmtiles extract` is given (§14.2)."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -3.715599,
+              40.4078017
+            ],
+            [
+              -3.692001,
+              40.4078017
+            ],
+            [
+              -3.692001,
+              40.4257983
+            ],
+            [
+              -3.715599,
+              40.4257983
+            ],
+            [
+              -3.715599,
+              40.4078017
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "ZONE",
+        "id": "zone-norte-oeste",
+        "name": "NORTE OESTE",
+        "sector": "s-norte",
+        "sectorName": "NORTE",
+        "district": "d-madrid",
+        "districtName": "MADRID"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -3.7096995,
+              40.4168
+            ],
+            [
+              -3.7038,
+              40.4168
+            ],
+            [
+              -3.7038,
+              40.4212992
+            ],
+            [
+              -3.7096995,
+              40.4212992
+            ],
+            [
+              -3.7096995,
+              40.4168
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "ZONE",
+        "id": "zone-norte-este",
+        "name": "NORTE ESTE",
+        "sector": "s-norte",
+        "sectorName": "NORTE",
+        "district": "d-madrid",
+        "districtName": "MADRID"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -3.7038,
+              40.4168
+            ],
+            [
+              -3.6979005,
+              40.4168
+            ],
+            [
+              -3.6979005,
+              40.4212992
+            ],
+            [
+              -3.7038,
+              40.4212992
+            ],
+            [
+              -3.7038,
+              40.4168
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "ZONE",
+        "id": "zone-sur-oeste",
+        "name": "SUR OESTE",
+        "sector": "s-sur",
+        "sectorName": "SUR",
+        "district": "d-madrid",
+        "districtName": "MADRID"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -3.7096995,
+              40.4123008
+            ],
+            [
+              -3.7038,
+              40.4123008
+            ],
+            [
+              -3.7038,
+              40.4168
+            ],
+            [
+              -3.7096995,
+              40.4168
+            ],
+            [
+              -3.7096995,
+              40.4123008
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "ZONE",
+        "id": "zone-sur-este",
+        "name": "SUR ESTE",
+        "sector": "s-sur",
+        "sectorName": "SUR",
+        "district": "d-madrid",
+        "districtName": "MADRID"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -3.7038,
+              40.4123008
+            ],
+            [
+              -3.6979005,
+              40.4123008
+            ],
+            [
+              -3.6979005,
+              40.4168
+            ],
+            [
+              -3.7038,
+              40.4168
+            ],
+            [
+              -3.7038,
+              40.4123008
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-objetivo",
+        "name": "OBJETIVO",
+        "category": "OBJECTIVE"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.7067498,
+          40.4190496
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-deposito",
+        "name": "DEPOSITO",
+        "category": "OTHER"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.7005553,
+          40.4194995
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-foco",
+        "name": "FOCO",
+        "category": "HAZARD"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.7070447,
+          40.4143254
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-reunion",
+        "name": "PUNTO DE REUNION",
+        "category": "MEETING_POINT"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.7008503,
+          40.4141005
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-acceso-norte",
+        "name": "ACCESO NORTE",
+        "category": "ENTRANCE",
+        "entranceTo": "zone-norte-este",
+        "note": "Opens into zone-norte-este, and stands on the border it shares with zone-norte-oeste."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -3.7038,
+          40.4190496
+        ]
+      }
+    }
+  ]
+}

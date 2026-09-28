@@ -1,0 +1,21 @@
+# Copy to workers/.dev.vars for `wrangler dev`. Never commit the real values.
+# In production every one of these is a secret, not a var:
+#   openssl rand -base64 32 | wrangler secret put SESSION_SECRET
+#
+# A value that has been through a terminal, a chat or a log is burned. Generate
+# the production ones straight into `wrangler secret put`.
+
+# Rotating path secret for the ingest endpoint (R-02). One per game.
+#
+# Must be URL-path-safe: it is read out of one path segment, so a `/` in it is
+# truncated away and ingest then 404s every ping. Use hex, never base64:
+#   openssl rand -hex 32
+INGEST_SECRET=replace-with-a-long-random-hex-string
+
+# HMAC key for signing session cookies (§6.4). Leaking it means anyone can mint
+# a master session. 32 bytes: openssl rand -base64 32
+SESSION_SECRET=replace-with-32-random-bytes
+
+# Master login (§6.4). Players never use a password — they redeem an invite
+# token at /j/<token>, which is the whole of their authentication.
+MASTER_PASSWORD=replace-with-a-strong-password

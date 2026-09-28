@@ -1,0 +1,30 @@
+# Nothing here is for a search engine — and the way to say that is **not** a
+# `Disallow`, which is why this file allows everything.
+#
+# `Disallow` stops a *fetch*. `noindex` stops a *listing*. They sound like two
+# strengths of the same thing and they are two different mechanisms, with one
+# consequence that catches everybody: a crawler that is not allowed to fetch a
+# page never reads the `noindex` in it. Blocked here and marked `noindex` in the
+# markup, the marking is never seen — and a URL somebody links to can still be
+# listed, as a bare address with no description, which is the outcome this was
+# meant to prevent.
+#
+# So the page is fetchable on purpose and `index.html` carries
+# `noindex, nofollow`. That is the pair that actually takes a host out of a
+# results page and keeps it out.
+#
+# None of it stops a bot that ignores robots files, and nothing can: this is a
+# request, not an access control. R-08's invite tokens and the master password
+# are what stand between a visitor and the game, here as everywhere else.
+#
+# **Never list an ingest path in this file.** R-02 puts the secret in a URL path
+# segment, so a rule naming it would publish it to exactly the audience this
+# file is written for.
+#
+# The file also exists to be a file. The asset router answers an unknown path
+# with `index.html` and a 200 — `not_found_handling = "single-page-application"`
+# in `wrangler.toml` — so without it `/robots.txt` served a page of HTML where a
+# robots file should be. The same 200-instead-of-404 is what breaks the map's
+# worker; see CLAUDE.md.
+User-agent: *
+Disallow:

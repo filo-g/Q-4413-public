@@ -1,0 +1,314 @@
+{
+  "type": "FeatureCollection",
+  "note": "Invented geometry, not a real venue. A 1 km square over the centre of SEVILLA, tiled by four rectangular zones in two sectors under one district (R-70). Zone borders are exact: neighbours share the same nodes, so there is no sliver between them for a player to stand in and be visible to nobody (§4). Edit this file to describe your own ground — nothing geographic lives in code (§11). One file feeds both the renderer and server-side geometry (R-51); every feature carries featureType.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "PERIMETER",
+        "name": "Perimetro",
+        "note": "Invented, and square on purpose: the four zones below tile it exactly, sharing vertices to the digit. See README, \"Your own geometry\"."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -5.9879531,
+              37.3841008
+            ],
+            [
+              -5.9766469,
+              37.3841008
+            ],
+            [
+              -5.9766469,
+              37.3930992
+            ],
+            [
+              -5.9879531,
+              37.3930992
+            ],
+            [
+              -5.9879531,
+              37.3841008
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "INGEST_AREA",
+        "name": "Area de ingesta",
+        "note": "Perimeter plus 500 m (R-04). Players drift outside the perimeter and their pings must still be accepted while IN_PROGRESS; this is also the extent `pmtiles extract` is given (§14.2)."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -5.9936061,
+              37.3796017
+            ],
+            [
+              -5.9709939,
+              37.3796017
+            ],
+            [
+              -5.9709939,
+              37.3975983
+            ],
+            [
+              -5.9936061,
+              37.3975983
+            ],
+            [
+              -5.9936061,
+              37.3796017
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "ZONE",
+        "id": "zone-norte-oeste",
+        "name": "NORTE OESTE",
+        "sector": "s-norte",
+        "sectorName": "NORTE",
+        "district": "d-sevilla",
+        "districtName": "SEVILLA"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -5.9879531,
+              37.3886
+            ],
+            [
+              -5.9823,
+              37.3886
+            ],
+            [
+              -5.9823,
+              37.3930992
+            ],
+            [
+              -5.9879531,
+              37.3930992
+            ],
+            [
+              -5.9879531,
+              37.3886
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "ZONE",
+        "id": "zone-norte-este",
+        "name": "NORTE ESTE",
+        "sector": "s-norte",
+        "sectorName": "NORTE",
+        "district": "d-sevilla",
+        "districtName": "SEVILLA"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -5.9823,
+              37.3886
+            ],
+            [
+              -5.9766469,
+              37.3886
+            ],
+            [
+              -5.9766469,
+              37.3930992
+            ],
+            [
+              -5.9823,
+              37.3930992
+            ],
+            [
+              -5.9823,
+              37.3886
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "ZONE",
+        "id": "zone-sur-oeste",
+        "name": "SUR OESTE",
+        "sector": "s-sur",
+        "sectorName": "SUR",
+        "district": "d-sevilla",
+        "districtName": "SEVILLA"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -5.9879531,
+              37.3841008
+            ],
+            [
+              -5.9823,
+              37.3841008
+            ],
+            [
+              -5.9823,
+              37.3886
+            ],
+            [
+              -5.9879531,
+              37.3886
+            ],
+            [
+              -5.9879531,
+              37.3841008
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "ZONE",
+        "id": "zone-sur-este",
+        "name": "SUR ESTE",
+        "sector": "s-sur",
+        "sectorName": "SUR",
+        "district": "d-sevilla",
+        "districtName": "SEVILLA"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -5.9823,
+              37.3841008
+            ],
+            [
+              -5.9766469,
+              37.3841008
+            ],
+            [
+              -5.9766469,
+              37.3886
+            ],
+            [
+              -5.9823,
+              37.3886
+            ],
+            [
+              -5.9823,
+              37.3841008
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-objetivo",
+        "name": "OBJETIVO",
+        "category": "OBJECTIVE"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.9851266,
+          37.3908496
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-deposito",
+        "name": "DEPOSITO",
+        "category": "OTHER"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.9791908,
+          37.3912995
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-foco",
+        "name": "FOCO",
+        "category": "HAZARD"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.9854092,
+          37.3861254
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-reunion",
+        "name": "PUNTO DE REUNION",
+        "category": "MEETING_POINT"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.9794735,
+          37.3859005
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "featureType": "POI",
+        "id": "poi-acceso-norte",
+        "name": "ACCESO NORTE",
+        "category": "ENTRANCE",
+        "entranceTo": "zone-norte-este",
+        "note": "Opens into zone-norte-este, and stands on the border it shares with zone-norte-oeste."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.9823,
+          37.3908496
+        ]
+      }
+    }
+  ]
+}

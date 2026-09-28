@@ -1,0 +1,35 @@
+{
+  "name": "q-4413",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.3.0",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --recursive --stream run dev",
+    "build": "pnpm run typecheck && pnpm --recursive --stream run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "fake-phones": "node tools/fake-phones.mjs",
+    "glyphs": "node tools/glyphs.mjs",
+    "glyphs:check": "node tools/glyphs.mjs --check",
+    "basemap": "tools/basemap.sh",
+    "socket-audit": "node tools/socket-audit.mjs",
+    "typecheck": "node node_modules/@typescript/native/bin/tsc --build && pnpm --filter @q4413/web run check",
+    "typecheck:ts6": "node node_modules/typescript/bin/tsc --build --force"
+  },
+  "devDependencies": {
+    "@q4413/core": "workspace:*",
+    "@q4413/shared": "workspace:*",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^26.4.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "opentype.js": "^2.0.0",
+    "polygon-clipping": "^0.15.7",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.11"
+  }
+}

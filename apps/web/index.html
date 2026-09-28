@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mod. Q-4413</title>
+
+    <!--
+      Not for a search engine, and `robots.txt` is only half of saying so.
+
+      That file is a request a crawler may decline to read; this is the header
+      that keeps a page out of an index it has already reached, and the two are
+      not redundant — `Disallow` stops a fetch, `noindex` stops a listing, and a
+      page linked from somewhere else can be listed without ever being fetched.
+
+      `nofollow` because the links that matter here are `/j/<token>` invites:
+      they are the whole of a player's authentication (R-08) and a crawler
+      following one would redeem it.
+    -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!--
+      Without a manifest, Android offers only "add shortcut", which opens a
+      browser tab. §6.4 needs the invite link to install as an app, so this is
+      what makes that offer appear at all.
+
+      start_url is "/" rather than the invite link: /j/<token> redeems the token
+      and redirects here, and a home-screen icon must not carry a token that
+      expires when the game finishes (R-08).
+    -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#140f0a" />
+
+    <!--
+      The SVG first, because the PNG below it is a 192 px raster going into a
+      16 px tab: at that size the ring is a fraction of a pixel wide and the
+      downscaler eats it. Browsers that understand `image/svg+xml` prefer it and
+      the rest fall through to the raster, which is why both are listed.
+
+      The apple-touch-icon is the `any` file rather than the maskable one. iOS
+      applies its own rounded-rect mask and does not crop to a circle, so the
+      20% of padding a maskable icon carries would just make the mark small.
+    -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

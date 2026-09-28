@@ -1,0 +1,18 @@
+{
+  "name": "@q4413/workers",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260827.1"
+  },
+  "dependencies": {
+    "@q4413/core": "workspace:*",
+    "@q4413/shared": "workspace:*"
+  }
+}

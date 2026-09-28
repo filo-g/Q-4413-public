@@ -1,0 +1,72 @@
+name: Pages
+
+# The static demo at https://q4413-demo.filoga.me.
+#
+# There is no Worker here and no environment to deploy to: the whole of the API
+# is faked in the page (apps/web/src/demo/), so a deploy is a folder of files.
+# `VITE_DEMO=1` is what turns that on — without it this builds the real app,
+# which would sit at the login screen for ever with nothing to answer it.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A superseded deploy tells you nothing, but cancelling one midway can leave the
+# site half-written. Queue instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Before setup-node: `cache: pnpm` resolves the store path by running pnpm.
+      - uses: pnpm/action-setup@v6
+        # Version comes from the packageManager field in package.json.
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          # Explicit because setup-node limited automatic caching to npm.
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The same suite CI runs. A demo is still the app, and the thing it is
+      # demonstrating is that the app works.
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+        env:
+          # The one switch. See apps/web/src/main.ts.
+          VITE_DEMO: '1'
+
+      - uses: actions/configure-pages@v5
+
+      # apps/web/public/CNAME rides along inside dist/, which is where it has to
+      # be: Pages reads the custom domain from a file at the root of the *site*,
+      # and a CNAME left at the root of the repo is dropped on every deploy —
+      # which takes the domain down with it.
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

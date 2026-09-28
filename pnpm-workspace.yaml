@@ -1,0 +1,11 @@
+packages:
+  - 'apps/*'
+  - 'workers'
+  - 'packages/*'
+
+# No onlyBuiltDependencies on purpose: nothing in this tree runs an install
+# script. Vite 8 bundles with rolldown, and rolldown, lightningcss and the
+# TypeScript 7 compiler all ship prebuilt binaries as platform optional
+# dependencies. wrangler needs workerd built, but it runs via `pnpm dlx`, outside
+# the workspace, where this file does not apply — approve it there with
+# `pnpm --allow-build=workerd dlx wrangler@4 ...` or install it per machine.

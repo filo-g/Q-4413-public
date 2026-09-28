@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A superseded run tells you nothing. Cancel it.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    # M2 is the only security boundary in the system (§4). Its suite has to run
+    # on every push, not when someone remembers to run it.
+    steps:
+      - uses: actions/checkout@v7
+
+      # Before setup-node, not after: `cache: pnpm` below resolves the store
+      # path by running pnpm, so pnpm has to be on PATH by then.
+      - uses: pnpm/action-setup@v6
+        # Version comes from the packageManager field in package.json.
+
+      - uses: actions/setup-node@v7
+        with:
+          # The floor declared in engines, not the version any laptop happens to
+          # run: a syntax or API assumption newer than this must fail here.
+          node-version: 22
+          # Explicit, and it has to stay that way: setup-node v6 limited
+          # *automatic* caching to npm, so pnpm is only cached when asked for
+          # by name. Dropping this line silently costs the install cache
+          # rather than failing.
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      # `pnpm build` typechecks again before bundling. The overlap is deliberate:
+      # this runs the command a developer actually types, and tsgo makes the
+      # second pass cost about a second.
+      - name: Build
+        run: pnpm build

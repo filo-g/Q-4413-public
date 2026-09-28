@@ -1,0 +1,43 @@
+{
+  "//": "Root suite and tooling config. Kept out of the package projects so a test never becomes a build input.",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist-types",
+    "rootDir": ".",
+    "types": [
+      "node"
+    ],
+    "noUnusedLocals": false,
+    "allowJs": true
+  },
+  "//include": "The web modules listed here are plain .ts with no runes, so the root suite imports them directly rather than growing a component test harness for arithmetic: map/ derives R-11 and R-12 for the map layer, heading.ts is R-50's freeze and low-pass, perimeter.ts is R-43's boundary bands, format.ts is where R-45's rule that a rough time is rendered as '≈4 min' and never '4:12' actually holds, glyphs.ts is §9.7's state marks, which carry a §4 gate rather than a cosmetic choice, chrome/banner.ts is §9.6's boot logotype, whose two invariants — printable ASCII, because VT323 has no block elements, and a rectangle — fail silently on a login screen rather than loudly in a build, chrome/screensaver.ts is R-67's bounce, whose one interesting property — that the path reaches a corner at all — is arithmetic nobody can see in review and nobody can wait out by hand, and export.ts names R-65's two files and picks the container a browser will actually record into — a `.webm` holding MP4 opens in nothing, and the choice is a pure function with the support predicate injected precisely so it can be checked here, keys.ts decides which keystrokes the app is allowed to swallow — it names the four fields of an event it reads rather than importing KeyboardEvent, precisely so it can be tested here, link.ts decides what a closed socket means (R-74) and is a module of its own for the same reason: the suite has no WebSocket, and the rule that tells a refused handshake from a lost link is the part that was wrong. i18n.ts and the locale come with format.ts, which reads every string through them (§0). demo/world.ts and demo/server.ts are the static demo's fake Durable Object, and they are listed one by one rather than by a glob on purpose: demo/profiles.ts imports the geometry with Vite's ?raw and demo/install.ts patches browser globals, and neither is readable by plain tsc — which is exactly why the two files that are, take the geometry as an argument.",
+  "include": [
+    "tests/**/*.ts",
+    "tools/**/*.mjs",
+    "vitest.config.ts",
+    "apps/web/src/map/**/*.ts",
+    "apps/web/src/map/style.json",
+    "apps/web/src/heading.ts",
+    "apps/web/src/perimeter.ts",
+    "apps/web/src/sw-range.ts",
+    "apps/web/src/format.ts",
+    "apps/web/src/export.ts",
+    "apps/web/src/glyphs.ts",
+    "apps/web/src/keys.ts",
+    "apps/web/src/link.ts",
+    "apps/web/src/chrome/banner.ts",
+    "apps/web/src/chrome/screensaver.ts",
+    "apps/web/src/demo/world.ts",
+    "apps/web/src/demo/server.ts",
+    "apps/web/src/i18n.ts",
+    "apps/web/locales/*.json"
+  ],
+  "references": [
+    {
+      "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/core"
+    }
+  ]
+}
